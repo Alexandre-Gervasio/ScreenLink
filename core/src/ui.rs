@@ -1,6 +1,6 @@
-use actix_web::{web, App, HttpServer, HttpResponse};
-use std::sync::Mutex;
+use actix_web::{web, App, HttpResponse, HttpServer};
 use std::process::{Child, Command};
+use std::sync::Mutex;
 
 struct AppState {
     server_process: Mutex<Option<Child>>,
@@ -44,7 +44,7 @@ async fn index() -> HttpResponse {
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -54,7 +54,7 @@ async fn index() -> HttpResponse {
             justify-content: center;
             padding: 20px;
         }
-        
+
         .container {
             background: white;
             border-radius: 12px;
@@ -63,25 +63,25 @@ async fn index() -> HttpResponse {
             width: 100%;
             padding: 40px;
         }
-        
+
         h1 {
             color: #333;
             margin-bottom: 10px;
             text-align: center;
             font-size: 28px;
         }
-        
+
         .subtitle {
             color: #666;
             text-align: center;
             margin-bottom: 40px;
             font-size: 14px;
         }
-        
+
         .control-section {
             margin-bottom: 40px;
         }
-        
+
         .section-title {
             font-size: 16px;
             font-weight: 600;
@@ -91,13 +91,13 @@ async fn index() -> HttpResponse {
             align-items: center;
             gap: 8px;
         }
-        
+
         .button-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
-        
+
         button {
             padding: 12px 20px;
             border: none;
@@ -109,31 +109,31 @@ async fn index() -> HttpResponse {
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .btn-start {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        
+
         .btn-start:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
         }
-        
+
         .btn-stop {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
         }
-        
+
         .btn-stop:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(245, 87, 108, 0.4);
         }
-        
+
         button:active {
             transform: translateY(0);
         }
-        
+
         .status {
             margin-top: 20px;
             padding: 15px;
@@ -143,7 +143,7 @@ async fn index() -> HttpResponse {
             font-size: 12px;
             color: #666;
         }
-        
+
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -152,7 +152,7 @@ async fn index() -> HttpResponse {
             font-size: 12px;
             color: #999;
         }
-        
+
         .loading {
             display: inline-block;
             width: 12px;
@@ -160,7 +160,7 @@ async fn index() -> HttpResponse {
             margin-right: 8px;
             animation: spin 0.6s linear infinite;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -170,7 +170,7 @@ async fn index() -> HttpResponse {
     <div class="container">
         <h1>🎛️ KVM Pro</h1>
         <p class="subtitle">v1.0.1 - Control Panel</p>
-        
+
         <!-- Servidor -->
         <div class="control-section">
             <div class="section-title">📡 Servidor (Server)</div>
@@ -179,7 +179,7 @@ async fn index() -> HttpResponse {
                 <button class="btn-stop" onclick="stopServer()">🔴 Desligar</button>
             </div>
         </div>
-        
+
         <!-- Cliente -->
         <div class="control-section">
             <div class="section-title">💻 Cliente (Client)</div>
@@ -188,28 +188,28 @@ async fn index() -> HttpResponse {
                 <button class="btn-stop" onclick="stopClient()">🔴 Desconectar</button>
             </div>
         </div>
-        
+
         <div class="status">
             <span id="status_text">✅ Pronto para usar</span>
         </div>
-        
+
         <div class="footer">
             © 2024 KVM Pro • Compartilhamento de teclado e mouse
         </div>
     </div>
-    
+
     <script>
         function showStatus(message) {
             const status = document.getElementById('status_text');
             status.innerHTML = '<span class="loading">↻</span>' + message;
         }
-        
+
         function clearStatus() {
             setTimeout(() => {
                 document.getElementById('status_text').innerHTML = '✅ Pronto para usar';
             }, 2000);
         }
-        
+
         async function startServer() {
             showStatus('Iniciando servidor...');
             try {
@@ -224,7 +224,7 @@ async fn index() -> HttpResponse {
             }
             clearStatus();
         }
-        
+
         async function stopServer() {
             showStatus('Parando servidor...');
             try {
@@ -239,7 +239,7 @@ async fn index() -> HttpResponse {
             }
             clearStatus();
         }
-        
+
         async function startClient() {
             showStatus('Conectando cliente...');
             try {
@@ -254,7 +254,7 @@ async fn index() -> HttpResponse {
             }
             clearStatus();
         }
-        
+
         async function stopClient() {
             showStatus('Desconectando cliente...');
             try {
@@ -272,7 +272,7 @@ async fn index() -> HttpResponse {
     </script>
 </body>
 </html>"#;
-    
+
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(html)
@@ -284,15 +284,16 @@ async fn start_server(data: web::Data<AppState>) -> HttpResponse {
         match Command::new("kvm-pro-server").spawn() {
             Ok(child) => {
                 *server = Some(child);
-                HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": "Servidor iniciado"}))
+                HttpResponse::Ok()
+                    .json(serde_json::json!({"status": "success", "message": "Servidor iniciado"}))
             }
-            Err(e) => {
-                HttpResponse::InternalServerError()
-                    .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)}))
-            }
+            Err(e) => HttpResponse::InternalServerError()
+                .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)})),
         }
     } else {
-        HttpResponse::Ok().json(serde_json::json!({"status": "warning", "message": "Servidor já está em execução"}))
+        HttpResponse::Ok().json(
+            serde_json::json!({"status": "warning", "message": "Servidor já está em execução"}),
+        )
     }
 }
 
@@ -300,16 +301,15 @@ async fn stop_server(data: web::Data<AppState>) -> HttpResponse {
     let mut server = data.server_process.lock().unwrap();
     if let Some(mut child) = server.take() {
         match child.kill() {
-            Ok(_) => {
-                HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": "Servidor parado"}))
-            }
-            Err(e) => {
-                HttpResponse::InternalServerError()
-                    .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)}))
-            }
+            Ok(_) => HttpResponse::Ok()
+                .json(serde_json::json!({"status": "success", "message": "Servidor parado"})),
+            Err(e) => HttpResponse::InternalServerError()
+                .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)})),
         }
     } else {
-        HttpResponse::Ok().json(serde_json::json!({"status": "warning", "message": "Servidor não está em execução"}))
+        HttpResponse::Ok().json(
+            serde_json::json!({"status": "warning", "message": "Servidor não está em execução"}),
+        )
     }
 }
 
@@ -319,15 +319,16 @@ async fn start_client(data: web::Data<AppState>) -> HttpResponse {
         match Command::new("kvm-pro-client").spawn() {
             Ok(child) => {
                 *client = Some(child);
-                HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": "Cliente iniciado"}))
+                HttpResponse::Ok()
+                    .json(serde_json::json!({"status": "success", "message": "Cliente iniciado"}))
             }
-            Err(e) => {
-                HttpResponse::InternalServerError()
-                    .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)}))
-            }
+            Err(e) => HttpResponse::InternalServerError()
+                .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)})),
         }
     } else {
-        HttpResponse::Ok().json(serde_json::json!({"status": "warning", "message": "Cliente já está em execução"}))
+        HttpResponse::Ok().json(
+            serde_json::json!({"status": "warning", "message": "Cliente já está em execução"}),
+        )
     }
 }
 
@@ -335,15 +336,14 @@ async fn stop_client(data: web::Data<AppState>) -> HttpResponse {
     let mut client = data.client_process.lock().unwrap();
     if let Some(mut child) = client.take() {
         match child.kill() {
-            Ok(_) => {
-                HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": "Cliente parado"}))
-            }
-            Err(e) => {
-                HttpResponse::InternalServerError()
-                    .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)}))
-            }
+            Ok(_) => HttpResponse::Ok()
+                .json(serde_json::json!({"status": "success", "message": "Cliente parado"})),
+            Err(e) => HttpResponse::InternalServerError()
+                .json(serde_json::json!({"status": "error", "message": format!("Erro: {}", e)})),
         }
     } else {
-        HttpResponse::Ok().json(serde_json::json!({"status": "warning", "message": "Cliente não está em execução"}))
+        HttpResponse::Ok().json(
+            serde_json::json!({"status": "warning", "message": "Cliente não está em execução"}),
+        )
     }
 }
