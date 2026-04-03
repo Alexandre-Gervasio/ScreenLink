@@ -1,0 +1,192 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+      
+      - name: Install musl-tools
+        run: sudo apt-get install -y musl-tools
+      
+      - name: Build Linux (musl)
+        run: |
+          cd core
+          cargo build --release --target x86_64-unknown-linux-musl
+          mkdir -p ../dist/linux
+          cp target/x86_64-unknown-linux-musl/release/server ../dist/linux/kvm-pro-server
+          cp target/x86_64-unknown-linux-musl/release/client ../dist/linux/kvm-pro-client
+          strip ../dist/linux/kvm-pro-*
+      
+      - name: Create Linux Package
+        run: |
+          cd dist/linux
+          cp ../../scripts/auto-update.sh .
+          cp ../../scripts/run-server.sh .
+          cp ../../scripts/run-client.sh .
+          cp ../../kvm-pro.toml .
+          chmod +x *.sh kvm-pro-*
+          tar -czf kvm-pro-linux.tar.gz *
+          mv kvm-pro-linux.tar.gz ..
+      
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: kvm-pro-linux
+          path: dist/linux/kvm-pro-linux.tar.gz
+
+  build-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-gnu
+      
+      - name: Install MinGW
+        run: sudo apt-get install -y mingw-w64
+      
+      - name: Build Windows
+        run: |
+          cd core
+          cargo build --release --target x86_64-pc-windows-gnu
+          mkdir -p ../dist/windows
+          cp target/x86_64-pc-windows-gnu/release/server.exe ../dist/windows/kvm-pro-server.exe
+          cp target/x86_64-pc-windows-gnu/release/client.exe ../dist/windows/kvm-pro-client.exe
+          x86_64-w64-mingw32-strip ../dist/windows/kvm-pro-*.exe 2>/dev/null || true
+      
+      - name: Create Windows Package
+        run: |
+          cd dist/windows
+          cp ../../scripts/auto-update.bat .
+          cp ../../scripts/run-server-with-update.bat .
+          cp ../../scripts/run-client.bat .
+          cp ../../kvm-pro.toml .
+          cp ../../USER_GUIDE.md .
+          cp ../../README.md .
+          zip -r kvm-pro-windows.zip *
+          mv kvm-pro-windows.zip ..
+      
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: kvm-pro-windows
+          path: dist/windows/kvm-pro-windows.zip
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: kvm-pro-linux
+          path: release-artifacts
+      
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: kvm-pro-windows
+          path: release-artifacts
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release-artifacts/*
+          draft: false
+          prerelease: false
+          body: |
+            # KVM Pro Release ${{ github.ref_name }}
+            
+            ## Installation
+            
+            ### Linux
+            ```bash
+            tar -xzf kvm-pro-linux.tar.gz
+            cd kvm-pro-linux
+            ./run-server.sh
+            ```
+            
+            ### Windows
+            ```
+            Extract kvm-pro-windows.zip
+            Double-click run-server-with-update.bat
+            ```
+            
+            ## Changes
+            
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+            
+            ## Auto-Update
+            
+            The auto-update system is built-in. Just restart the application and it will check for updates automatically.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y musl-tools appimagetool
+      
+      - name: Build AppImage
+        run: |
+          cd core
+          cargo build --release --target x86_64-unknown-linux-musl
+          mkdir -p ../dist/appimage/AppDir/usr/bin
+          cp target/x86_64-unknown-linux-musl/release/server ../dist/appimage/AppDir/usr/bin/kvm-pro-server
+          cp target/x86_64-unknown-linux-musl/release/client ../dist/appimage/AppDir/usr/bin/kvm-pro-client
+          strip ../dist/appimage/AppDir/usr/bin/kvm-pro-*
+      
+      - name: Create AppImage Structure
+        run: |
+          mkdir -p dist/appimage/AppDir/usr/share/applications
+          mkdir -p dist/appimage/AppDir/usr/share/icons/hicolor/256x256/apps
+          cat > dist/appimage/AppDir/usr/share/applications/kvm-pro.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=KVM Pro
+          Exec=kvm-pro-server
+          Icon=kvm-pro
+          Categories=Utility;System;
+          EOF
+          cp -f assets/icons/logo.png dist/appimage/AppDir/usr/share/icons/hicolor/256x256/apps/kvm-pro.png 2>/dev/null || true
+      
+      - name: Build AppImage
+        run: |
+          cd dist/appimage
+          cp ../../scripts/AppRun AppDir/
+          chmod +x AppDir/AppRun
+          appimagetool AppDir kvm-pro-x86_64.AppImage
+          mv kvm-pro-x86_64.AppImage ../
+      
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v3
+        with:
+          name: kvm-pro-appimage
+          path: dist/kvm-pro-x86_64.AppImage

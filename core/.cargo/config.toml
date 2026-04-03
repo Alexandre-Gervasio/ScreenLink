@@ -1,0 +1,21 @@
+[build]
+# Optimization for portable builds
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.x86_64-unknown-linux-musl]
+# Static linking for musl targets
+rustflags = [
+    "-C", "link-arg=-static",
+    "-C", "target-feature=+crt-static",
+    "-C", "relocation-model=pic",
+]
+
+[target.x86_64-pc-windows-gnu]
+# Static linking for Windows
+linker = "x86_64-w64-mingw32-gcc"
+ar = "x86_64-w64-mingw32-ar"
+rustflags = [
+    "-C", "link-arg=-static",
+    "-C", "link-arg=-lws2_32",
+    "-C", "link-arg=-luserenv",
+]
