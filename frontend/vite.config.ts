@@ -12,5 +12,16 @@ export default defineConfig({
     outDir: '../dist',
     emptyOutDir: true,
     target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+  // Tauri v2 support
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
   },
 });

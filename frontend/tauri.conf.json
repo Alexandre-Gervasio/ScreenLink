@@ -10,9 +10,11 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "ScreenLink",
+        "title": "ScreenLink - Virtual Extended Monitor",
         "width": 1200,
-        "height": 800
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ],
     "security": {
@@ -21,7 +23,7 @@
   },
   "package": {
     "productName": "ScreenLink",
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -31,11 +33,31 @@
         "close": true,
         "minimize": true,
         "maximize": true,
-        "unmaximize": true
+        "unmaximize": true,
+        "hide": true,
+        "show": true
+      },
+      "shell": {
+        "all": false,
+        "execute": true,
+        "sidecar": true,
+        "open": true
       }
     },
     "security": {
       "csp": null
+    },
+    "bundle": {
+      "active": true,
+      "targets": ["exe", "msi", "nsis", "appimage", "deb", "dmg"],
+      "identifier": "com.screenlink.app",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ]
     }
   }
 }
