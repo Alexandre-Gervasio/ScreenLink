@@ -1,0 +1,29 @@
+#!/bin/sh
+
+echo "🔍 Running pre-commit checks..."
+
+# Format check
+echo "✓ Checking code formatting..."
+npx prettier --check . || {
+  echo "❌ Formatting issues found! Running prettier fix..."
+  npx prettier --write .
+  echo "ℹ️  Files were auto-formatted. Please review and stage them again."
+  exit 1
+}
+
+# Lint check
+echo "✓ Running ESLint..."
+npx eslint . --ext .ts,.tsx --quiet || {
+  echo "❌ Linting errors found! Fix them before committing."
+  exit 1
+}
+
+# Type check
+echo "✓ Type checking..."
+npx tsc --noEmit --skipLibCheck || {
+  echo "❌ TypeScript errors found!"
+  exit 1
+}
+
+echo "✅ All pre-commit checks passed!"
+exit 0

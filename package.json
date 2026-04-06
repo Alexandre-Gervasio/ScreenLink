@@ -16,7 +16,17 @@
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run tauri build",
     "app": "cd frontend && npm run tauri dev",
-    "preview": "cd frontend && npm run preview"
+    "preview": "cd frontend && npm run preview",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:backend": "cd backend && npm test --if-present",
+    "test:frontend": "cd frontend && npm test --if-present",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "prepare": "husky install"
   },
   "keywords": [
     "screen-sharing",
