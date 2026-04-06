@@ -54,7 +54,7 @@ PC 1 (Laptop)                PC 2 (Desktop - ScreenLink)
 ### Core Features
 
 1. **Virtual Monitor Extend** - PC 2 acts as Monitor 2
-2. **AnyDesk-style Links** - Share via 6-character code, not IPs
+2. **UUID-based Links** - Share via unique codes, not IPs
 3. **H.264 Streaming** - Efficient video compression
 4. **Bidirectional** - Both PCs see each other's screens
 5. **No Installation** - Single portable .exe/.app/.bin

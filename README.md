@@ -1,6 +1,6 @@
 # 🖥️ ScreenLink - Virtual Extended Monitor
 
-> **Transform your second PC into an extended monitor** — Seamless screen sharing with AnyDesk-like simplicity. Just share a link and extend your display instantly.
+> **Transform your second PC into an extended monitor** — Seamless screen sharing with instant connection. Just share a link and extend your display instantly.
 
 **Status**: 🚧 v0.1.0 — Alpha Development  
 **Type**: Virtual Monitor/Screen Sharing  
@@ -23,7 +23,7 @@ Monitor 1 (Primary PC)
 └── Screen B (2nd PC - appears as extended display)
 ```
 
-Just like AnyDesk, but for **screen extension instead of remote control**.
+Purpose-built for **screen extension instead of remote control**.
 
 ---
 
@@ -100,7 +100,7 @@ screenlinkroot/
 ## 🚀 Key Features
 
 - ✅ **Virtual Extended Monitor** - 2nd PC appears as monitor extension
-- ✅ **AnyDesk-style Sharing** - Share via UUID links
+- ✅ **UUID-based Sharing** - Share via instant links
 - ✅ **H.264 Video Stream** - Efficient video compression
 - ✅ **Low Latency** - <100ms typical on LAN
 - ✅ **Firewall Proof** - Works through NAT/firewalls
@@ -268,7 +268,7 @@ See **[STUDY_GUIDE.md](./docs/STUDY_GUIDE.md)** for detailed learning path.
 
 ### v0.1 (Current)
 - [ ] Basic screen sharing
-- [ ] AnyDesk-style UUID links
+- [ ] UUID link generation
 - [ ] H.264 video stream
 - [ ] Cross-platform build
 

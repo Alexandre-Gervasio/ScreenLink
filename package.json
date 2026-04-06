@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Virtual Extended Monitor - Share screens like AnyDesk",
+  "description": "Virtual Extended Monitor - Seamless Screen Sharing",
   "workspaces": [
     "frontend",
     "backend"
