@@ -2,7 +2,7 @@
 
 > **A better alternative to Input Leap and Barrier** — Control multiple computers from a single keyboard and mouse. No installation. No dependencies. Just download and run.
 
-**Status**: ✅ v1.0.0 — Production Ready | **Portability**: 🎯 100% Portable | **Latency**: ⚡ <10ms
+**Status**: ✅ v1.0.5 — Production Ready | **Portability**: 🎯 100% Portable | **Latency**: ⚡ <10ms | **Binary**: 🎯 Single Executable
 
 ---
 
@@ -23,27 +23,35 @@
 
 ## ⚡ Quick Start (30 Seconds)
 
-### 📥 For End Users – Download & Run
+### 📥 Download Latest Release (v1.0.5)
 
-#### Linux/macOS
+**Linux:**
 ```bash
-# Download
-wget https://github.com/your-username/kvm-pro/releases/download/v1.0.0/kvm-pro-linux.tar.gz
+# Generic (glibc)
+wget https://github.com/Alexandre-Gervasio/kvm-pro/releases/download/v1.0.5/kvm-pro-linux
+chmod +x kvm-pro-linux
+./kvm-pro-linux --help
 
-# Extract  
-tar xzf kvm-pro-linux.tar.gz
-cd kvm-pro-linux
-
-# Run
-./run-server.sh
+# Alpine/Static (musl)
+wget https://github.com/Alexandre-Gervasio/kvm-pro/releases/download/v1.0.5/kvm-pro-linux-musl
+chmod +x kvm-pro-linux-musl
+./kvm-pro-linux-musl --help
 ```
 
-#### Windows
+**Windows:**
 ```batch
-REM 1. Download kvm-pro-windows.zip
-REM 2. Extract ZIP
-REM 3. Double-click: run-server-with-update.bat
-REM Done!
+REM Download and run directly:
+powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('https://github.com/Alexandre-Gervasio/kvm-pro/releases/download/v1.0.5/kvm-pro.exe', 'kvm-pro.exe') }"
+kvm-pro.exe --help
+```
+
+### 🚀 Usage
+
+```bash
+kvm-pro              # Discovery mode (default - finds peers automatically)
+kvm-pro -s           # Start as Server (awaits clients)
+kvm-pro -c           # Start as Client (connects to remote server)
+kvm-pro --discover   # Explicit discovery mode
 ```
 
 **That's it!** No installation, no dependencies, no config needed (unless you want to customize).
