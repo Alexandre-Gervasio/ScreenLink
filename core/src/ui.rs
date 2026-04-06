@@ -244,9 +244,7 @@ async fn index(data: web::Data<AppState>) -> HttpResponse {
     </div>
 
     <script>
-        const localIps = JSON.parse('{{"':[]
-            'ips_json'
-            ':"}}');
+        const localIps = JSON.parse('{{INJECT_IPS}}');
 
         window.onload = function() {{
             const container = document.getElementById('links-container');
@@ -343,7 +341,7 @@ async fn index(data: web::Data<AppState>) -> HttpResponse {
 
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(html.replace("':[]'ips_json':", &ips_json))
+        .body(html.replace("{{INJECT_IPS}}", &ips_json))
 }
 
 async fn start_server(data: web::Data<AppState>) -> HttpResponse {

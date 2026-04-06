@@ -1,6 +1,6 @@
 [package]
 name = "kvm-pro"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"
 description = "A high-performance KVM software superior to Input Leap and Barrier"
 license = "MIT"
@@ -10,11 +10,16 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 bincode = "1.3"
-actix-web = "4"
-actix-rt = "2"
+ratatui = "0.26"
+crossterm = "0.27"
+local-ip-address = "0.6"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3", features = ["winuser", "winbase", "winerror"] }
+
+[[bin]]
+name = "kvm-pro"
+path = "core/src/p2p.rs"
 
 [[bin]]
 name = "kvm-pro-server"

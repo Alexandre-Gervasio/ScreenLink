@@ -1,0 +1,14 @@
+/home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/deps/serde-393733f31c0555a5.d: /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/build/serde-98affd0f64224f25/out/private.rs
+
+/home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/deps/libserde-393733f31c0555a5.rlib: /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/build/serde-98affd0f64224f25/out/private.rs
+
+/home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/deps/libserde-393733f31c0555a5.rmeta: /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/build/serde-98affd0f64224f25/out/private.rs
+
+/home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/fridayale/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/build/serde-98affd0f64224f25/out/private.rs:
+
+# env-dep:OUT_DIR=/home/fridayale/Documentos/DEV/kvm-pro/target/x86_64-pc-windows-gnu/release/build/serde-98affd0f64224f25/out
