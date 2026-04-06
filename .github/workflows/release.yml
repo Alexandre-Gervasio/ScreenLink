@@ -14,7 +14,7 @@ jobs:
       contents: write
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Get version from tag
         id: tag_name
@@ -65,7 +65,7 @@ jobs:
       contents: write
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -124,7 +124,7 @@ jobs:
     if: success()
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Notify Slack
         uses: slackapi/slack-github-action@v3.0.1
