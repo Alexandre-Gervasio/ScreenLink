@@ -23,36 +23,40 @@ fn get_local_ips() -> Vec<String> {
     ips
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let local_ips = get_local_ips();
-    let app_state = web::Data::new(AppState {
-        server_process: Mutex::new(None),
-        client_process: Mutex::new(None),
-        local_ips: local_ips.clone(),
-    });
+fn main() {
+    tokio::runtime::Runtime::new()
+        .expect("Failed to create runtime")
+        .block_on(async {
+            let local_ips = get_local_ips();
+            let app_state = web::Data::new(AppState {
+                server_process: Mutex::new(None),
+                client_process: Mutex::new(None),
+                local_ips: local_ips.clone(),
+            });
 
-    println!("\n🎛️  KVM Pro v1.0.3 - UI Control Panel");
-    println!("════════════════════════════════════════");
-    println!("📱 Acesse a interface em:");
-    for ip in &local_ips {
-        println!("   → http://{}:8080", ip);
-    }
-    println!("════════════════════════════════════════\n");
+            println!("\n🎛️  KVM Pro v1.0.3 - UI Control Panel");
+            println!("════════════════════════════════════════");
+            println!("📱 Acesse a interface em:");
+            for ip in &local_ips {
+                println!("   → http://{}:8080", ip);
+            }
+            println!("════════════════════════════════════════\n");
 
-    HttpServer::new(move || {
-        App::new()
-            .app_data(app_state.clone())
-            .route("/", web::get().to(index))
-            .route("/api/info", web::get().to(get_info))
-            .route("/api/server/start", web::post().to(start_server))
-            .route("/api/server/stop", web::post().to(stop_server))
-            .route("/api/client/start", web::post().to(start_client))
-            .route("/api/client/stop", web::post().to(stop_client))
-    })
-    .bind("0.0.0.0:8080")?
-    .run()
-    .await
+            let _ = HttpServer::new(move || {
+                App::new()
+                    .app_data(app_state.clone())
+                    .route("/", web::get().to(index))
+                    .route("/api/info", web::get().to(get_info))
+                    .route("/api/server/start", web::post().to(start_server))
+                    .route("/api/server/stop", web::post().to(stop_server))
+                    .route("/api/client/start", web::post().to(start_client))
+                    .route("/api/client/stop", web::post().to(stop_client))
+            })
+            .bind("0.0.0.0:8080")
+            .expect("Failed to bind to port 8080")
+            .run()
+            .await;
+        });
 }
 
 async fn get_info(data: web::Data<AppState>) -> HttpResponse {
@@ -407,7 +411,7 @@ async fn stop_client(data: web::Data<AppState>) -> HttpResponse {
         }
     } else {
         HttpResponse::Ok().json(
-            serde_json::json!({"status": "warning", "message": "Cliente não está em execução"}),
+            serde_json::json!({"status": "warning", "message": "Cliente não está em execução"}), 
         )
     }
 }

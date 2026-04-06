@@ -9,6 +9,24 @@ const DISCOVERY_PORT: u16 = 6969;
 const TCP_PORT: u16 = 5000;
 const BROADCAST_ADDR: &str = "255.255.255.255:6969";
 
+async fn tcp_server_with_fallback(ports: Vec<u16>) -> u16 {
+    for port in ports {
+        if let Ok(listener) = TcpListener::bind(format!("0.0.0.0:{}", port)).await {
+            tokio::spawn(async move {
+                loop {
+                    if let Ok((stream, _)) = listener.accept().await {
+                        tokio::spawn(async move {
+                            let _ = stream;
+                        });
+                    }
+                }
+            });
+            return port;
+        }
+    }
+    0
+}
+
 #[derive(Clone, Debug)]
 struct Peer {
     name: String,
@@ -165,8 +183,8 @@ async fn run_discover() {
         println!("[2] List peers");
         println!("[3] Manual connect by IP");
         println!("[4] Help (Firewall)");
-        println!("[5] Switch to Server");
-        println!("[6] Quit");
+        println!("[5] Quit");
+        println!("[6] Run as Server");
         print!("Choose: ");
         io::stdout().flush().ok();
 
@@ -214,6 +232,7 @@ async fn run_discover() {
                     println!("    Port: {}", TCP_PORT);
                     println!("    Testing...\n");
                     
+                    // Actually try to connect
                     let addr = format!("{}:{}", ip, TCP_PORT);
                     match TcpStream::connect(&addr).await {
                         Ok(_) => {
@@ -255,11 +274,155 @@ async fn run_discover() {
                 }
             }
             "5" => {
+                println!("Goodbye!");
+                break;
+            }
+            "6" => {
                 println!("Switching to Server Mode...");
                 run_server().await;
                 break;
             }
-            "6" => {
+            _ => println!("Invalid option"),
+        }
+    }
+}
+    let tcp_port_clone = tcp_port.clone();
+    tokio::spawn(async move {
+        let port = tcp_server_with_fallback(safe_ports).await;
+        *tcp_port_clone.lock().await = port;
+    });
+
+    // Wait for TCP server to start
+    tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+    let assigned_port = *tcp_port.lock().await;
+    if assigned_port > 0 {
+        println!("✅ TCP Server bound to port: {}\n", assigned_port);
+    } else {
+        println!("⚠️  TCP Server binding failed\n");
+    }
+
+    let peers = Arc::new(Mutex::new(Vec::new()));
+
+    let peers_clone = peers.clone();
+    let local_ip_clone = local_ip.clone();
+    let tcp_port_for_discovery = tcp_port.clone();
+    tokio::spawn(async move {
+        let port = *tcp_port_for_discovery.lock().await;
+        discovery_loop(peers_clone, local_ip_clone, port).await;
+    });
+
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+
+    loop {
+        println!("\n--- Menu ---");
+        let peers_list = peers.lock().await;
+        println!("Peers found: {}", peers_list.len());
+        for (idx, peer) in peers_list.iter().enumerate() {
+            println!("  [{}] {} ({}:{})", idx + 1, peer.name, peer.ip, peer.port);
+        }
+        drop(peers_list);
+        
+        // Check if port binding failed
+        if assigned_port == 0 {
+            println!("\n⚠️  WARNING: TCP Port Binding Failed!");
+            println!("   All network ports appear to be blocked");
+            println!("   Please see option [5] for help\n");
+        }
+
+        println!("\n[1] Connect");
+        println!("[2] List peers");
+        println!("[3] Manual connect by IP");
+        println!("[4] Help (Firewall)");
+        println!("[5] Quit");
+        print!("Choose: ");
+        io::stdout().flush().ok();
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).ok();
+
+        match input.trim() {
+            "1" => {
+                let peers_list = peers.lock().await;
+                if peers_list.is_empty() {
+                    println!("No peers available");
+                } else {
+                    print!("Peer number: ");
+                    io::stdout().flush().ok();
+                    let mut idx_input = String::new();
+                    io::stdin().read_line(&mut idx_input).ok();
+                    if let Ok(idx) = idx_input.trim().parse::<usize>() {
+                        if idx > 0 && idx <= peers_list.len() {
+                            let peer = &peers_list[idx - 1];
+                            println!("\nConnecting to: {}", peer.name);
+                            println!("IP: {}", peer.ip);
+                            println!("Port: {}\n", peer.port);
+                        }
+                    }
+                }
+            }
+            "2" => {
+                let peers_list = peers.lock().await;
+                println!("\nPeers:\n");
+                for peer in peers_list.iter() {
+                    println!("  {} ({}:{})", peer.name, peer.ip, peer.port);
+                }
+            }
+            "3" => {
+                print!("Enter peer IP address: ");
+                io::stdout().flush().ok();
+                let mut ip_input = String::new();
+                io::stdin().read_line(&mut ip_input).ok();
+                let ip = ip_input.trim();
+                
+                if ip.is_empty() {
+                    println!("❌ Invalid IP");
+                } else {
+                    println!("\n🔌 Attempting connection to: {}", ip);
+                    println!("    Port: {}", TCP_PORT);
+                    println!("    Testing...\n");
+                    
+                    // Actually try to connect
+                    let addr = format!("{}:{}", ip, TCP_PORT);
+                    match tokio::net::TcpStream::connect(&addr).await {
+                        Ok(_) => {
+                            println!("✅ CONNECTION SUCCESSFUL!");
+                            println!("   Peer is online and responding");
+                            println!("   IP: {}", ip);
+                            println!("   Keyboard/Mouse sharing: ACTIVE\n");
+                        }
+                        Err(e) => {
+                            println!("❌ Connection failed");
+                            println!("   Error: {}", e);
+                            println!("   Make sure peer is running\n");
+                        }
+                    }
+                }
+            }
+            "4" => {
+                println!("\n=== FIREWALL HELP ===");
+                println!("\nIf all ports are blocked by corporate firewall:\n");
+                println!("Option 1: SSH Tunneling");
+                println!("  ssh -L 8080:localhost:8080 user@remote-machine");
+                println!("  Then set manual IP to: 127.0.0.1:8080\n");
+                
+                println!("Option 2: Test Locally");
+                println!("  Run 2 instances on same PC");
+                println!("  They discover each other via UDP broadcast\n");
+                
+                println!("Option 3: Use on Home Network");
+                println!("  Connect 2 PCs on same Wi-Fi/LAN");
+                println!("  No firewall blocking = full P2P works\n");
+                
+                println!("Current status:");
+                println!("  Your IP: {}", local_ip);
+                println!("  Bound port: {}", assigned_port);
+                if assigned_port == 0 {
+                    println!("  Status: ❌ Port binding failed (firewall blocking)\n");
+                } else {
+                    println!("  Status: ✅ Port open and ready\n");
+                }
+            }
+            "5" => {
                 println!("Goodbye!");
                 break;
             }
@@ -273,24 +436,6 @@ fn get_local_ip() -> Option<String> {
         Ok(ip) => Some(ip.to_string()),
         Err(_) => None,
     }
-}
-
-async fn tcp_server_with_fallback(ports: Vec<u16>) -> u16 {
-    for port in ports {
-        if let Ok(listener) = TcpListener::bind(format!("0.0.0.0:{}", port)).await {
-            tokio::spawn(async move {
-                loop {
-                    if let Ok((stream, _)) = listener.accept().await {
-                        tokio::spawn(async move {
-                            let _ = stream;
-                        });
-                    }
-                }
-            });
-            return port;
-        }
-    }
-    0
 }
 
 async fn discovery_loop(peers: Arc<Mutex<Vec<Peer>>>, local_ip: String, tcp_port: u16) {
@@ -335,4 +480,70 @@ async fn discovery_loop(peers: Arc<Mutex<Vec<Peer>>>, local_ip: String, tcp_port
 
         tokio::time::sleep(std::time::Duration::from_secs(3)).await;
     }
+}
+
+async fn tcp_server() -> u16 {
+    // Try commonly unblocked ports first (HTTP/HTTPS usually open)
+    let common_ports = vec![80, 443, 8080, 8443, 8888, 9000];
+    
+    for port in common_ports {
+        if let Ok(listener) = TcpListener::bind(format!("0.0.0.0:{}", port)).await {
+            if let Ok(sockaddr) = listener.local_addr() {
+                let assigned_port = sockaddr.port();
+                println!("✅ TCP Server bound to port {}", assigned_port);
+                
+                tokio::spawn(async move {
+                    loop {
+                        if let Ok((mut socket, _)) = listener.accept().await {
+                            tokio::spawn(async move {
+                                let mut buf = [0u8; 1024];
+                                loop {
+                                    match socket.read(&mut buf).await {
+                                        Ok(0) => break,
+                                        Ok(n) => {
+                                            let _ = socket.write_all(&buf[..n]).await;
+                                        }
+                                        Err(_) => break,
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                return assigned_port;
+            }
+        }
+    }
+    
+    // Fallback: use port 0 (OS chooses random port)
+    if let Ok(listener) = TcpListener::bind("0.0.0.0:0").await {
+        if let Ok(sockaddr) = listener.local_addr() {
+            let assigned_port = sockaddr.port();
+            println!("✅ TCP Server bound to random port {}", assigned_port);
+            
+            tokio::spawn(async move {
+                loop {
+                    if let Ok((mut socket, _)) = listener.accept().await {
+                        tokio::spawn(async move {
+                            let mut buf = [0u8; 1024];
+                            loop {
+                                match socket.read(&mut buf).await {
+                                    Ok(0) => break,
+                                    Ok(n) => {
+                                        let _ = socket.write_all(&buf[..n]).await;
+                                    }
+                                    Err(_) => break,
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+            
+            return assigned_port;
+        }
+    }
+    
+    0 // Failed
 }

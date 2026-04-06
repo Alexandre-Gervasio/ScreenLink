@@ -30,10 +30,6 @@ path = "core/src/main.rs"
 name = "kvm-pro-client"
 path = "core/src/client.rs"
 
-[[bin]]
-name = "kvm-pro-ui"
-path = "core/src/ui.rs"
-
 [profile.release]
 opt-level = 3
 lto = true
