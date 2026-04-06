@@ -36,38 +36,52 @@ async fn main() {
     match mode {
         "--server" | "-s" => run_server().await,
         "--client" | "-c" => run_client().await,
+        "--local" | "-l" => run_local().await,
         "--discover" | "-d" | _ => run_discover().await,
     }
 }
 
 fn print_help() {
-    println!("\n🎛️  KVM Pro v1.0.6 - Help");
+    println!("\n🎛️  KVM Pro v1.0.7 - Help");
     println!("════════════════════════════════════════");
     println!("\n📖 USAGE:");
     println!("  kvm-pro              # Discovery mode (default)");
     println!("  kvm-pro -s           # Start as Server");
     println!("  kvm-pro -c           # Start as Client");
+    println!("  kvm-pro -l           # Local mode (NO PORTS - Linux/macOS)");
     println!("  kvm-pro -h           # Show this help\n");
+    
+    println!("🎯 MODES:");
+    println!("  Discovery     - Auto-find peers on network");
+    println!("  Server        - Listen for client connections");
+    println!("  Client        - Connect to remote server");
+    println!("  Local         - LOCAL ONLY (No firewall issues!)");
+    println!("                  Uses Unix sockets on Linux/macOS");
+    println!("                  Uses localhost on Windows\n");
     
     println!("🔥 FIREWALL ISSUES?");
     println!("  If peers don't appear, your intranet likely blocks ports.\n");
     
     println!("✅ SOLUTIONS:");
-    println!("  1️⃣  SSH Tunneling (Best for Corporate Networks)");
-    println!("     On CLIENT machine:");
-    println!("       ssh -L 5000:SERVER_IP:5000 user@remote-gateway");
+    println!("  1️⃣  Local Mode (EASIEST - NO PORTS)");
+    println!("     kvm-pro -l");
+    println!("     Uses Unix sockets (Linux/macOS) or localhost (Windows)");
+    println!("     No network traffic, no firewall needed!\\n");
+    
+    println!("  2️⃣  SSH Tunneling");
+    println!("     ssh -L 5000:SERVER_IP:5000 user@remote-gateway");
     println!("     Then in KVM Pro:");
     println!("       Connect to: 127.0.0.1:5000\n");
     
-    println!("  2️⃣  VPN (If available)");
+    println!("  3️⃣  VPN (If available)");
     println!("     Connect to company VPN first");
     println!("     Then use normal discovery\n");
     
-    println!("  3️⃣  Manual Connection");
+    println!("  4️⃣  Manual Connection");
     println!("     Use option [3] in discovery menu");
     println!("     Enter direct IP:PORT of remote machine\n");
     
-    println!("  4️⃣  Reverse Port Forward");
+    println!("  5️⃣  Reverse Port Forward");
     println!("     On SERVER machine:");
     println!("       ssh -R 5000:localhost:5000 user@client-machine");
     println!("     Then client connects to localhost:5000\n");
@@ -147,8 +161,148 @@ async fn run_client() {
     eprintln!("❌ Failed to connect to any server");
 }
 
+async fn run_local() {
+    println!("\n🎛️  KVM Pro v1.0.7 - Local Mode");
+    println!("════════════════════════════════════════");
+    println!("✅ NO FIREWALL - Using local sockets\n");
+
+    #[cfg(target_os = "linux")]
+    {
+        println!("🔌 Unix Domain Socket: /tmp/kvm-pro.sock");
+        println!("   (No network ports, no firewall issues!)\n");
+        
+        if let Ok(listener) = tokio::net::UnixListener::bind("/tmp/kvm-pro.sock") {
+            println!("📡 Local Server started");
+            println!("   Type: Unix Socket");
+            println!("   Path: /tmp/kvm-pro.sock");
+            println!("   Status: ✅ LISTENING\n");
+            
+            loop {
+                match listener.accept().await {
+                    Ok((stream, _)) => {
+                        println!("✓ Local client connected via Unix socket");
+                        tokio::spawn(async move {
+                            let mut buf = [0_u8; 4096];
+                            let mut stream = stream;
+                            loop {
+                                match stream.read(&mut buf).await {
+                                    Ok(0) => {
+                                        println!("✗ Local client disconnected");
+                                        break;
+                                    }
+                                    Ok(n) => {
+                                        println!("📨 Received {} bytes", n);
+                                        let _ = stream.write_all(&buf[..n]).await;
+                                    }
+                                    Err(e) => {
+                                        eprintln!("❌ Error: {}", e);
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    Err(e) => eprintln!("Accept error: {}", e),
+                }
+            }
+        } else {
+            eprintln!("❌ Failed to bind Unix socket");
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        println!("🔌 Unix Domain Socket: /tmp/kvm-pro.sock");
+        println!("   (No network ports, no firewall issues!)\n");
+        
+        let _ = std::fs::remove_file("/tmp/kvm-pro.sock");
+        
+        if let Ok(listener) = tokio::net::UnixListener::bind("/tmp/kvm-pro.sock") {
+            println!("📡 Local Server started");
+            println!("   Type: Unix Socket");
+            println!("   Path: /tmp/kvm-pro.sock");
+            println!("   Status: ✅ LISTENING\n");
+            
+            loop {
+                match listener.accept().await {
+                    Ok((stream, _)) => {
+                        println!("✓ Local client connected via Unix socket");
+                        tokio::spawn(async move {
+                            let mut buf = [0_u8; 4096];
+                            let mut stream = stream;
+                            loop {
+                                match stream.read(&mut buf).await {
+                                    Ok(0) => {
+                                        println!("✗ Local client disconnected");
+                                        break;
+                                    }
+                                    Ok(n) => {
+                                        println!("📨 Received {} bytes", n);
+                                        let _ = stream.write_all(&buf[..n]).await;
+                                    }
+                                    Err(e) => {
+                                        eprintln!("❌ Error: {}", e);
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    Err(e) => eprintln!("Accept error: {}", e),
+                }
+            }
+        } else {
+            eprintln!("❌ Failed to bind Unix socket");
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        println!("🔌 Localhost TCP: 127.0.0.1:5000");
+        println!("   (Local only, no remote connections)\n");
+        
+        if let Ok(listener) = TcpListener::bind("127.0.0.1:5000").await {
+            println!("📡 Local Server started");
+            println!("   Type: TCP Localhost");
+            println!("   Address: 127.0.0.1:5000");
+            println!("   Status: ✅ LISTENING\n");
+            
+            loop {
+                match listener.accept().await {
+                    Ok((stream, addr)) => {
+                        println!("✓ Local client connected from {}", addr);
+                        tokio::spawn(async move {
+                            let mut buf = [0_u8; 4096];
+                            let mut stream = stream;
+                            loop {
+                                match stream.read(&mut buf).await {
+                                    Ok(0) => {
+                                        println!("✗ Local client disconnected");
+                                        break;
+                                    }
+                                    Ok(n) => {
+                                        println!("📨 Received {} bytes", n);
+                                        let _ = stream.write_all(&buf[..n]).await;
+                                    }
+                                    Err(e) => {
+                                        eprintln!("❌ Error: {}", e);
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    Err(e) => eprintln!("Accept error: {}", e),
+                }
+            }
+        } else {
+            eprintln!("❌ Failed to bind to localhost:5000");
+        }
+    }
+}
+
 async fn run_discover() {
-    println!("\n===== KVM Pro v1.0.6 - Discovery Mode =====\n");
+    println!("\n===== KVM Pro v1.0.7 - Discovery Mode =====\n");
 
     let local_ip = get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
     println!("Local IP: {}", local_ip);
