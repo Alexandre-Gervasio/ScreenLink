@@ -1,0 +1,264 @@
+.app {
+  width: 100vw;
+  height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+/* Home Screen */
+.home-screen {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  font-size: 1.1em;
+  color: #666;
+  margin: 10px 0 0 0;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+button {
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-btn {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.secondary-btn:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+button span {
+  font-size: 0.8em;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.divider {
+  text-align: center;
+  color: #999;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+footer {
+  margin-top: 40px;
+  color: #999;
+  font-size: 0.9em;
+}
+
+/* Primary Screen */
+.primary-screen,
+.secondary-screen {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  width: 90%;
+  max-width: 800px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.primary-screen .header,
+.secondary-screen .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.primary-screen .header button,
+.secondary-screen .header button {
+  background: #f0f0f0;
+  padding: 8px 16px;
+  font-size: 1em;
+}
+
+.share-box {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 30px;
+  border-radius: 12px;
+  margin: 30px 0;
+}
+
+.share-box h2 {
+  margin: 0 0 20px 0;
+  color: #667eea;
+}
+
+.code-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.code-box code {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #764ba2;
+  flex: 1;
+}
+
+.code-box button {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+}
+
+.full-url {
+  font-family: monospace;
+  font-size: 0.9em;
+  color: #666;
+  word-break: break-all;
+  margin: 10px 0;
+}
+
+.expires {
+  font-size: 0.9em;
+  color: #999;
+  margin: 0;
+}
+
+.status {
+  text-align: center;
+  padding: 20px;
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+
+.status .connected {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Secondary Connection */
+.connect-box {
+  display: flex;
+  gap: 10px;
+  margin: 30px 0;
+}
+
+.connect-box input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.connect-box input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.connect-box button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.remote-display {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.video-container {
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.video-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-container p {
+  color: #999;
+  font-size: 1.1em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .home-screen {
+    padding: 30px 20px;
+  }
+
+  .header h1 {
+    font-size: 2em;
+  }
+
+  .primary-screen,
+  .secondary-screen {
+    width: 95%;
+    padding: 20px;
+  }
+
+  button {
+    font-size: 1em;
+  }
+}

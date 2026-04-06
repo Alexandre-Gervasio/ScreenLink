@@ -1,0 +1,41 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev --prefix ..",
+    "beforeBuildCommand": "npm run build --prefix ..",
+    "devPath": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "ScreenLink",
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "package": {
+    "productName": "ScreenLink",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "window": {
+        "all": false,
+        "close": true,
+        "minimize": true,
+        "maximize": true,
+        "unmaximize": true
+      }
+    },
+    "security": {
+      "csp": null
+    }
+  }
+}
