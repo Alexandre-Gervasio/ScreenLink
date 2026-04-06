@@ -24,17 +24,29 @@ async fn main() {
     println!("Local IP: {}", local_ip);
     println!("Discovering peers...\n");
 
+    // Start TCP server and get assigned port
+    let tcp_port = Arc::new(Mutex::new(0u16));
+    let tcp_port_clone = tcp_port.clone();
+    tokio::spawn(async move {
+        let port = tcp_server().await;
+        *tcp_port_clone.lock().await = port;
+    });
+
+    // Wait for TCP server to start
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+    let assigned_port = *tcp_port.lock().await;
+    if assigned_port > 0 {
+        println!("TCP Server listening on port: {}\n", assigned_port);
+    }
+
     let peers = Arc::new(Mutex::new(Vec::new()));
 
     let peers_clone = peers.clone();
     let local_ip_clone = local_ip.clone();
+    let tcp_port_for_discovery = tcp_port.clone();
     tokio::spawn(async move {
-        discovery_loop(peers_clone, local_ip_clone).await;
-    });
-
-    let peers_clone = peers.clone();
-    tokio::spawn(async move {
-        tcp_server(peers_clone).await;
+        let port = *tcp_port_for_discovery.lock().await;
+        discovery_loop(peers_clone, local_ip_clone, port).await;
     });
 
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
@@ -100,11 +112,11 @@ fn get_local_ip() -> Option<String> {
     }
 }
 
-async fn discovery_loop(peers: Arc<Mutex<Vec<Peer>>>, local_ip: String) {
+async fn discovery_loop(peers: Arc<Mutex<Vec<Peer>>>, local_ip: String, tcp_port: u16) {
     loop {
         if let Ok(socket) = UdpSocket::bind("0.0.0.0:0") {
             let _ = socket.set_broadcast(true);
-            let msg = format!("KVM_DISCOVER:{}/{}", local_ip, TCP_PORT);
+            let msg = format!("KVM_DISCOVER:{}/{}", local_ip, tcp_port);
             let _ = socket.send_to(msg.as_bytes(), BROADCAST_ADDR);
         }
 
@@ -144,24 +156,36 @@ async fn discovery_loop(peers: Arc<Mutex<Vec<Peer>>>, local_ip: String) {
     }
 }
 
-async fn tcp_server(_peers: Arc<Mutex<Vec<Peer>>>) {
-    let addr = format!("0.0.0.0:{}", TCP_PORT);
+async fn tcp_server() -> u16 {
+    // Use port 0 to let OS assign a free port
+    let addr = "0.0.0.0:0";
     if let Ok(listener) = TcpListener::bind(&addr).await {
-        loop {
-            if let Ok((mut socket, _)) = listener.accept().await {
-                tokio::spawn(async move {
-                    let mut buf = [0u8; 1024];
-                    loop {
-                        match socket.read(&mut buf).await {
-                            Ok(0) => break,
-                            Ok(n) => {
-                                let _ = socket.write_all(&buf[..n]).await;
+        if let Ok(sockaddr) = listener.local_addr() {
+            let assigned_port = sockaddr.port();
+            println!("✅ TCP Server bound to port {}", assigned_port);
+            
+            tokio::spawn(async move {
+                loop {
+                    if let Ok((mut socket, _)) = listener.accept().await {
+                        tokio::spawn(async move {
+                            let mut buf = [0u8; 1024];
+                            loop {
+                                match socket.read(&mut buf).await {
+                                    Ok(0) => break,
+                                    Ok(n) => {
+                                        let _ = socket.write_all(&buf[..n]).await;
+                                    }
+                                    Err(_) => break,
+                                }
                             }
-                            Err(_) => break,
-                        }
+                        });
                     }
-                });
-            }
+                }
+            });
+            
+            return assigned_port;
         }
     }
+    
+    TCP_PORT // fallback to default
 }
