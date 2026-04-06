@@ -91,11 +91,8 @@ jobs:
       - name: Install musl-tools and dependencies
         run: sudo apt-get update && sudo apt-get install -y musl-tools libssl-dev pkg-config
       
-      - name: Build kvm-pro-server
-        run: cargo build --release --target x86_64-unknown-linux-musl --bin kvm-pro-server
-      
-      - name: Build kvm-pro-client
-        run: cargo build --release --target x86_64-unknown-linux-musl --bin kvm-pro-client
+      - name: Build kvm-pro
+        run: cargo build --release --target x86_64-unknown-linux-musl --bin kvm-pro
 
   build-windows:
     name: Build Windows (cross)
@@ -111,8 +108,5 @@ jobs:
       - name: Install MinGW and dependencies
         run: sudo apt-get update && sudo apt-get install -y mingw-w64 pkg-config
       
-      - name: Build kvm-pro-server
-        run: cargo build --release --target x86_64-pc-windows-gnu --bin kvm-pro-server
-      
-      - name: Build kvm-pro-client
-        run: cargo build --release --target x86_64-pc-windows-gnu --bin kvm-pro-client
+      - name: Build kvm-pro
+        run: cargo build --release --target x86_64-pc-windows-gnu --bin kvm-pro

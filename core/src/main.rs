@@ -19,7 +19,7 @@ struct Peer {
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
-    
+
     // Parse mode: --server, --client, --discover, --help (default: discover)
     let mode = if args.len() > 1 {
         match args[1].as_str() {
@@ -27,7 +27,7 @@ async fn main() {
                 print_help();
                 return;
             }
-            _ => &args[1]
+            _ => &args[1],
         }
     } else {
         "--discover"
@@ -50,7 +50,7 @@ fn print_help() {
     println!("  kvm-pro -c           # Start as Client");
     println!("  kvm-pro -l           # Local mode (NO PORTS - Linux/macOS)");
     println!("  kvm-pro -h           # Show this help\n");
-    
+
     println!("🎯 MODES:");
     println!("  Discovery     - Auto-find peers on network");
     println!("  Server        - Listen for client connections");
@@ -58,34 +58,34 @@ fn print_help() {
     println!("  Local         - LOCAL ONLY (No firewall issues!)");
     println!("                  Uses Unix sockets on Linux/macOS");
     println!("                  Uses localhost on Windows\n");
-    
+
     println!("🔥 FIREWALL ISSUES?");
     println!("  If peers don't appear, your intranet likely blocks ports.\n");
-    
+
     println!("✅ SOLUTIONS:");
     println!("  1️⃣  Local Mode (EASIEST - NO PORTS)");
     println!("     kvm-pro -l");
     println!("     Uses Unix sockets (Linux/macOS) or localhost (Windows)");
     println!("     No network traffic, no firewall needed!\\n");
-    
+
     println!("  2️⃣  SSH Tunneling");
     println!("     ssh -L 5000:SERVER_IP:5000 user@remote-gateway");
     println!("     Then in KVM Pro:");
     println!("       Connect to: 127.0.0.1:5000\n");
-    
+
     println!("  3️⃣  VPN (If available)");
     println!("     Connect to company VPN first");
     println!("     Then use normal discovery\n");
-    
+
     println!("  4️⃣  Manual Connection");
     println!("     Use option [3] in discovery menu");
     println!("     Enter direct IP:PORT of remote machine\n");
-    
+
     println!("  5️⃣  Reverse Port Forward");
     println!("     On SERVER machine:");
     println!("       ssh -R 5000:localhost:5000 user@client-machine");
     println!("     Then client connects to localhost:5000\n");
-    
+
     println!("💡 COMMON PORTS (often less blocked):");
     println!("   80 (HTTP), 443 (HTTPS), 8080, 8443\n");
 }
@@ -141,7 +141,7 @@ async fn run_client() {
     println!("\n🎛️  KVM Pro v1.0.6 - Client Mode");
     println!("════════════════════════════════════════");
     println!("Connecting to server...\n");
-    
+
     // Try to connect to localhost first, or discover
     let servers = vec!["127.0.0.1:5000", "192.168.1.100:5000"];
     for server_addr in servers {
@@ -170,13 +170,13 @@ async fn run_local() {
     {
         println!("🔌 Unix Domain Socket: /tmp/kvm-pro.sock");
         println!("   (No network ports, no firewall issues!)\n");
-        
+
         if let Ok(listener) = tokio::net::UnixListener::bind("/tmp/kvm-pro.sock") {
             println!("📡 Local Server started");
             println!("   Type: Unix Socket");
             println!("   Path: /tmp/kvm-pro.sock");
             println!("   Status: ✅ LISTENING\n");
-            
+
             loop {
                 match listener.accept().await {
                     Ok((stream, _)) => {
@@ -214,15 +214,15 @@ async fn run_local() {
     {
         println!("🔌 Unix Domain Socket: /tmp/kvm-pro.sock");
         println!("   (No network ports, no firewall issues!)\n");
-        
+
         let _ = std::fs::remove_file("/tmp/kvm-pro.sock");
-        
+
         if let Ok(listener) = tokio::net::UnixListener::bind("/tmp/kvm-pro.sock") {
             println!("📡 Local Server started");
             println!("   Type: Unix Socket");
             println!("   Path: /tmp/kvm-pro.sock");
             println!("   Status: ✅ LISTENING\n");
-            
+
             loop {
                 match listener.accept().await {
                     Ok((stream, _)) => {
@@ -260,13 +260,13 @@ async fn run_local() {
     {
         println!("🔌 Localhost TCP: 127.0.0.1:5000");
         println!("   (Local only, no remote connections)\n");
-        
+
         if let Ok(listener) = TcpListener::bind("127.0.0.1:5000").await {
             println!("📡 Local Server started");
             println!("   Type: TCP Localhost");
             println!("   Address: 127.0.0.1:5000");
             println!("   Status: ✅ LISTENING\n");
-            
+
             loop {
                 match listener.accept().await {
                     Ok((stream, addr)) => {
@@ -307,11 +307,11 @@ async fn run_discover() {
     let local_ip = get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
     println!("Local IP: {}", local_ip);
     println!("Discovering peers...\n");
-    
+
     // Try safe ports (usually not blocked by corporate firewalls)
     let safe_ports = vec![8080, 8443, 8888, 9000, 443, 3000, 5000];
     println!("Trying to bind to safe ports...");
-    
+
     // Start TCP server and get assigned port
     let tcp_port = Arc::new(Mutex::new(0u16));
     let tcp_port_clone = tcp_port.clone();
@@ -349,7 +349,7 @@ async fn run_discover() {
             println!("  [{}] {} ({}:{})", idx + 1, peer.name, peer.ip, peer.port);
         }
         drop(peers_list);
-        
+
         // Check if port binding failed
         if assigned_port == 0 {
             println!("\n⚠️  WARNING: TCP Port Binding Failed!");
@@ -399,24 +399,24 @@ async fn run_discover() {
             "3" => {
                 println!("\n🔧 Manual Connection (for Firewall Bypass)");
                 println!("════════════════════════════════════════");
-                
+
                 print!("Enter IP address (or leave blank for 127.0.0.1): ");
                 io::stdout().flush().ok();
                 let mut ip_input = String::new();
                 io::stdin().read_line(&mut ip_input).ok();
                 let ip = ip_input.trim();
                 let ip = if ip.is_empty() { "127.0.0.1" } else { ip };
-                
+
                 print!("Enter port (or leave blank for 5000): ");
                 io::stdout().flush().ok();
                 let mut port_input = String::new();
                 io::stdin().read_line(&mut port_input).ok();
                 let port_str = port_input.trim();
                 let port: u16 = port_str.parse().unwrap_or(5000);
-                
+
                 println!("\n🔌 Attempting connection to: {}:{}", ip, port);
                 println!("    Testing...\n");
-                
+
                 let addr = format!("{}:{}", ip, port);
                 match TcpStream::connect(&addr).await {
                     Ok(_) => {
@@ -440,20 +440,20 @@ async fn run_discover() {
                 println!("\n╔════════════════════════════════════════╗");
                 println!("║       CORPORATE FIREWALL SOLUTIONS      ║");
                 println!("╚════════════════════════════════════════╝");
-                
+
                 println!("\n📊 DIAGNÓSTICO:");
                 println!("   Your LAN IP: {}", local_ip);
                 println!("   Peers found: {}", peers.lock().await.len());
-                
-                let port_status = if assigned_port == 0 { 
+
+                let port_status = if assigned_port == 0 {
                     "❌ BLOCKED - likely intranet firewall".to_string()
-                } else { 
+                } else {
                     format!("✅ OPEN on port {}", assigned_port)
                 };
                 println!("   Port status: {}", port_status);
-                
+
                 println!("\n🎯 SOLUTIONS (in order of preference):\n");
-                
+
                 println!("1️⃣  SSH TUNNELING (Best for Corporate Networks)");
                 println!("   ═══════════════════════════════════════════");
                 println!("   Command on CLIENT machine:");
@@ -463,19 +463,19 @@ async fn run_discover() {
                 println!("   • Use option [3]: Manual connect");
                 println!("   • Enter IP: 127.0.0.1");
                 println!("   • Enter Port: 5000\n");
-                
+
                 println!("2️⃣  REVERSE SSH TUNNEL (SERVER to CLIENT)");
                 println!("   ═════════════════════════════════════════");
                 println!("   Command on SERVER machine:");
                 println!("   $ ssh -R 5000:localhost:5000 user@client-machine");
                 println!("   ");
                 println!("   Then CLIENT connects to localhost:5000\n");
-                
+
                 println!("3️⃣  VPN CONNECTION");
                 println!("   ════════════════");
                 println!("   • Connect to company VPN first");
                 println!("   • Then use normal discovery (should find peers)\n");
-                
+
                 println!("4️⃣  ALTERNATIVE PORTS (if SSH not available)");
                 println!("   ════════════════════════════════════════");
                 println!("   Most corporate firewalls allow:");
@@ -483,12 +483,12 @@ async fn run_discover() {
                 println!("   • Port 443 (HTTPS)");
                 println!("   • Port 8080 (HTTP-Proxy)");
                 println!("   • Port 3389 (RDP - sometimes)\n");
-                
+
                 println!("5️⃣  SAME NETWORK (Simplest if Available)");
                 println!("   ═════════════════════════════════════");
                 println!("   • Connect both PCs to same Wi-Fi/LAN");
                 println!("   • Use normal discovery\n");
-                
+
                 println!("❓ HOW TO TELL IF FIREWALLED:");
                 println!("   • Peers found = 0 → Likely firewalled");
                 println!("   • Port status = BLOCKED → Definitely firewalled\n");
