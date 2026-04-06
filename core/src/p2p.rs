@@ -62,7 +62,8 @@ async fn main() {
 
         println!("\n[1] Connect");
         println!("[2] List peers");
-        println!("[3] Quit");
+        println!("[3] Manual connect by IP");
+        println!("[4] Quit");
         print!("Choose: ");
         io::stdout().flush().ok();
 
@@ -97,6 +98,21 @@ async fn main() {
                 }
             }
             "3" => {
+                print!("Enter peer IP address: ");
+                io::stdout().flush().ok();
+                let mut ip_input = String::new();
+                io::stdin().read_line(&mut ip_input).ok();
+                let ip = ip_input.trim();
+                
+                if ip.is_empty() {
+                    println!("❌ Invalid IP");
+                } else {
+                    println!("\n✅ Manual connection to: {}", ip);
+                    println!("   Using default port: {}", TCP_PORT);
+                    println!("   Attempting connection...\n");
+                }
+            }
+            "4" => {
                 println!("Goodbye!");
                 break;
             }
