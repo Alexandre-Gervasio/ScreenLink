@@ -168,12 +168,18 @@ async fn run_app<B: Backend>(
     terminal: &mut Terminal<B>,
     mut app_state: AppState,
 ) -> io::Result<()> {
+    let mut last_update = std::time::Instant::now();
+    
     loop {
-        terminal.draw(|f| {
-            ui(f, &app_state);
-        })?;
+        // Render only every 200ms to avoid spam
+        if last_update.elapsed().as_millis() > 200 {
+            terminal.draw(|f| {
+                ui(f, &app_state);
+            })?;
+            last_update = std::time::Instant::now();
+        }
 
-        if crossterm::event::poll(std::time::Duration::from_millis(250))? {
+        if crossterm::event::poll(std::time::Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
