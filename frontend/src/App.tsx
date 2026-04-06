@@ -1,18 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import './App.css';
-
-interface Message {
-  type: string;
-  [key: string]: any;
-}
 
 export default function App() {
   const [mode, setMode] = useState<'home' | 'primary' | 'secondary'>('home');
   const [shareLink, setShareLink] = useState<string>('');
   const [shareCode, setShareCode] = useState<string>('');
   const [connected, setConnected] = useState(false);
-  const [remoteScreen, setRemoteScreen] = useState<string>('');
-  const wsRef = useRef<WebSocket | null>(null);
 
   // Generate share link
   const generateShareLink = async () => {
@@ -129,11 +122,7 @@ export default function App() {
             <div className="remote-display">
               <p>Connected! Your desktop is now extended.</p>
               <div className="video-container">
-                {remoteScreen ? (
-                  <img src={remoteScreen} alt="Remote Display" />
-                ) : (
-                  <p>Waiting for video stream...</p>
-                )}
+                <p>Waiting for video stream...</p>
               </div>
             </div>
           )}
