@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 // Jest setup file - runs before all tests
 // Add global test configuration here
 
@@ -8,7 +9,7 @@ jest.useFakeTimers();
 const originalError = console.error;
 const originalWarn = console.warn;
 beforeAll(() => {
-  console.error = jest.fn((...args) => {
+  console.error = jest.fn((...args: any[]) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Not implemented') || args[0].includes('Mock'))
@@ -18,7 +19,7 @@ beforeAll(() => {
     originalError.call(console, ...args);
   });
 
-  console.warn = jest.fn((...args) => {
+  console.warn = jest.fn((...args: any[]) => {
     if (typeof args[0] === 'string' && args[0].includes('Deprecation')) {
       return;
     }

@@ -74,6 +74,25 @@ router.post('/api/links/create', (req: Request, res) => {
   });
 });
 
+// Get all active links
+router.get('/api/links', (req: Request, res) => {
+  const links = Array.from(shareLinks.values()).map((link) => ({
+    uuid: link.uuid,
+    code: link.code,
+    active: link.active && new Date() <= link.expires,
+    created: link.created,
+    expiresAt: link.expires,
+    primaryConnected: !!link.primaryPC,
+    secondaryConnected: !!link.secondaryPC,
+  }));
+
+  res.json({
+    total: links.length,
+    active: links.filter((l) => l.active).length,
+    links,
+  });
+});
+
 // Get link info
 router.get('/api/links/:uuid', (req: Request, res) => {
   const link = shareLinks.get(req.params.uuid);
@@ -84,7 +103,7 @@ router.get('/api/links/:uuid', (req: Request, res) => {
 
   if (new Date() > link.expires) {
     link.active = false;
-    res.status(410).json({ error: 'Link expired' });
+    return res.status(410).json({ error: 'Link expired' });
   }
 
   res.json({

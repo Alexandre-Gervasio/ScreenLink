@@ -9,29 +9,17 @@ jobs:
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
-    
     permissions:
       contents: write
     
     steps:
-      - uses: actions/checkout@v6
-      
-      - name: Get version from tag
-        id: tag_name
-        run: |
-          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
+      - uses: actions/checkout@v4
+
       - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag_name.outputs.version }}
-          release_name: Release ${{ steps.tag_name.outputs.version }}
           body: |
-            ## 🚀 ScreenLink Release ${{ steps.tag_name.outputs.version }}
-            
-            **Release Date**: ${{ github.event.head_commit.timestamp }}
+            ## 🚀 ScreenLink Release ${{ github.ref_name }}
             
             ### 📝 Changes
             See [CHANGELOG.md](../../blob/${{ github.ref_name }}/CHANGELOG.md) for details.
@@ -41,106 +29,7 @@ jobs:
             
             ### 🔧 Installation
             Extract the binary for your platform and run it. No installation required!
-            
-            **Checksums** available in release assets.
-            
           draft: false
           prerelease: false
-
-  build-release:
-    name: Build Release Assets
-    needs: create-release
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact: screenlink-linux.tar.gz
-          - os: windows-latest
-            artifact: screenlink-windows.zip
-          - os: macos-latest
-            artifact: screenlink-macos.dmg
-    runs-on: ${{ matrix.os }}
-    
-    permissions:
-      contents: write
-    
-    steps:
-      - uses: actions/checkout@v6
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '18'
-          cache: 'npm'
-      
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build release
-        run: npm run build
-      
-      - name: Get version
-        id: version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      
-      - name: Create archive (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          cd frontend/target/release
-          tar -czf ../../screenlink-linux-${{ steps.version.outputs.version }}.tar.gz .
-      
-      - name: Create archive (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          cd frontend/target/release
-          Compress-Archive -Path * -DestinationPath ../../screenlink-windows-${{ steps.version.outputs.version }}.zip
-      
-      - name: Create archive (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          cd frontend/target/release
-          tar -czf ../../screenlink-macos-${{ steps.version.outputs.version }}.tar.gz .
-      
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./frontend/${{ matrix.artifact }}
-          asset_name: ${{ matrix.artifact }}
-          asset_content_type: application/octet-stream
-
-  notify:
-    name: Notify Release
-    needs: [create-release, build-release]
-    runs-on: ubuntu-latest
-    if: success()
-    
-    steps:
-      - uses: actions/checkout@v6
-      
-      - name: Notify Slack
-        uses: slackapi/slack-github-action@v3.0.1
-        with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          payload: |
-            {
-              "text": "🎉 ScreenLink Release ${{ github.ref_name }} is live!",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*ScreenLink Release Published* 🚀\n\nVersion: `${{ github.ref_name }}`\n<${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}|View Release>"
-                  }
-                }
-              ]
-            }
-        if: secrets.SLACK_WEBHOOK_URL != ''
