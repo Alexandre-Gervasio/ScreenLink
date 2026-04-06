@@ -20,9 +20,15 @@ struct Peer {
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
     
-    // Parse mode: --server, --client, --discover (default: discover)
+    // Parse mode: --server, --client, --discover, --help (default: discover)
     let mode = if args.len() > 1 {
-        &args[1]
+        match args[1].as_str() {
+            "--help" | "-h" | "help" => {
+                print_help();
+                return;
+            }
+            _ => &args[1]
+        }
     } else {
         "--discover"
     };
@@ -34,8 +40,44 @@ async fn main() {
     }
 }
 
+fn print_help() {
+    println!("\n🎛️  KVM Pro v1.0.6 - Help");
+    println!("════════════════════════════════════════");
+    println!("\n📖 USAGE:");
+    println!("  kvm-pro              # Discovery mode (default)");
+    println!("  kvm-pro -s           # Start as Server");
+    println!("  kvm-pro -c           # Start as Client");
+    println!("  kvm-pro -h           # Show this help\n");
+    
+    println!("🔥 FIREWALL ISSUES?");
+    println!("  If peers don't appear, your intranet likely blocks ports.\n");
+    
+    println!("✅ SOLUTIONS:");
+    println!("  1️⃣  SSH Tunneling (Best for Corporate Networks)");
+    println!("     On CLIENT machine:");
+    println!("       ssh -L 5000:SERVER_IP:5000 user@remote-gateway");
+    println!("     Then in KVM Pro:");
+    println!("       Connect to: 127.0.0.1:5000\n");
+    
+    println!("  2️⃣  VPN (If available)");
+    println!("     Connect to company VPN first");
+    println!("     Then use normal discovery\n");
+    
+    println!("  3️⃣  Manual Connection");
+    println!("     Use option [3] in discovery menu");
+    println!("     Enter direct IP:PORT of remote machine\n");
+    
+    println!("  4️⃣  Reverse Port Forward");
+    println!("     On SERVER machine:");
+    println!("       ssh -R 5000:localhost:5000 user@client-machine");
+    println!("     Then client connects to localhost:5000\n");
+    
+    println!("💡 COMMON PORTS (often less blocked):");
+    println!("   80 (HTTP), 443 (HTTPS), 8080, 8443\n");
+}
+
 async fn run_server() {
-    println!("\n🎛️  KVM Pro v1.0.4 - Server Mode");
+    println!("\n🎛️  KVM Pro v1.0.6 - Server Mode");
     println!("════════════════════════════════════════");
     println!("Status: ✅ Ready");
     println!("Listening on: 0.0.0.0:5000");
@@ -82,7 +124,7 @@ async fn handle_client(mut socket: TcpStream, addr: SocketAddr) {
 }
 
 async fn run_client() {
-    println!("\n🎛️  KVM Pro v1.0.4 - Client Mode");
+    println!("\n🎛️  KVM Pro v1.0.6 - Client Mode");
     println!("════════════════════════════════════════");
     println!("Connecting to server...\n");
     
@@ -106,7 +148,7 @@ async fn run_client() {
 }
 
 async fn run_discover() {
-    println!("\n===== KVM Pro v1.0.4 - Discovery Mode =====\n");
+    println!("\n===== KVM Pro v1.0.6 - Discovery Mode =====\n");
 
     let local_ip = get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
     println!("Local IP: {}", local_ip);
@@ -201,58 +243,101 @@ async fn run_discover() {
                 }
             }
             "3" => {
-                print!("Enter peer IP address: ");
+                println!("\n🔧 Manual Connection (for Firewall Bypass)");
+                println!("════════════════════════════════════════");
+                
+                print!("Enter IP address (or leave blank for 127.0.0.1): ");
                 io::stdout().flush().ok();
                 let mut ip_input = String::new();
                 io::stdin().read_line(&mut ip_input).ok();
                 let ip = ip_input.trim();
+                let ip = if ip.is_empty() { "127.0.0.1" } else { ip };
                 
-                if ip.is_empty() {
-                    println!("❌ Invalid IP");
-                } else {
-                    println!("\n🔌 Attempting connection to: {}", ip);
-                    println!("    Port: {}", TCP_PORT);
-                    println!("    Testing...\n");
-                    
-                    let addr = format!("{}:{}", ip, TCP_PORT);
-                    match TcpStream::connect(&addr).await {
-                        Ok(_) => {
-                            println!("✅ CONNECTION SUCCESSFUL!");
-                            println!("   Peer is online and responding");
-                            println!("   IP: {}", ip);
-                            println!("   Keyboard/Mouse sharing: ACTIVE\n");
-                        }
-                        Err(e) => {
-                            println!("❌ Connection failed");
-                            println!("   Error: {}", e);
-                            println!("   Make sure peer is running\n");
-                        }
+                print!("Enter port (or leave blank for 5000): ");
+                io::stdout().flush().ok();
+                let mut port_input = String::new();
+                io::stdin().read_line(&mut port_input).ok();
+                let port_str = port_input.trim();
+                let port: u16 = port_str.parse().unwrap_or(5000);
+                
+                println!("\n🔌 Attempting connection to: {}:{}", ip, port);
+                println!("    Testing...\n");
+                
+                let addr = format!("{}:{}", ip, port);
+                match TcpStream::connect(&addr).await {
+                    Ok(_) => {
+                        println!("✅ CONNECTION SUCCESSFUL!");
+                        println!("   Server is online and responding");
+                        println!("   IP: {}", ip);
+                        println!("   Port: {}", port);
+                        println!("   Keyboard/Mouse sharing: ACTIVE\n");
+                    }
+                    Err(e) => {
+                        println!("❌ Connection failed: {}", e);
+                        println!("\n💡 Tips:");
+                        println!("   • Make sure server is running (kvm-pro -s)");
+                        println!("   • If using SSH tunnel, check ssh connection first");
+                        println!("   • Try alternative ports (80, 443, 8080, 8443)");
+                        println!("   • Check if firewall is blocking the port\n");
                     }
                 }
             }
             "4" => {
-                println!("\n=== FIREWALL HELP ===");
-                println!("\nIf all ports are blocked by corporate firewall:\n");
-                println!("Option 1: SSH Tunneling");
-                println!("  ssh -L 8080:localhost:8080 user@remote-machine");
-                println!("  Then set manual IP to: 127.0.0.1:8080\n");
+                println!("\n╔════════════════════════════════════════╗");
+                println!("║       CORPORATE FIREWALL SOLUTIONS      ║");
+                println!("╚════════════════════════════════════════╝");
                 
-                println!("Option 2: Test Locally");
-                println!("  Run 2 instances on same PC");
-                println!("  They discover each other via UDP broadcast\n");
+                println!("\n📊 DIAGNÓSTICO:");
+                println!("   Your LAN IP: {}", local_ip);
+                println!("   Peers found: {}", peers.lock().await.len());
                 
-                println!("Option 3: Use on Home Network");
-                println!("  Connect 2 PCs on same Wi-Fi/LAN");
-                println!("  No firewall blocking = full P2P works\n");
+                let port_status = if assigned_port == 0 { 
+                    "❌ BLOCKED - likely intranet firewall".to_string()
+                } else { 
+                    format!("✅ OPEN on port {}", assigned_port)
+                };
+                println!("   Port status: {}", port_status);
                 
-                println!("Current status:");
-                println!("  Your IP: {}", local_ip);
-                println!("  Bound port: {}", assigned_port);
-                if assigned_port == 0 {
-                    println!("  Status: ❌ Port binding failed (firewall blocking)\n");
-                } else {
-                    println!("  Status: ✅ Port open and ready\n");
-                }
+                println!("\n🎯 SOLUTIONS (in order of preference):\n");
+                
+                println!("1️⃣  SSH TUNNELING (Best for Corporate Networks)");
+                println!("   ═══════════════════════════════════════════");
+                println!("   Command on CLIENT machine:");
+                println!("   $ ssh -L 5000:SERVER_LOCAL_IP:5000 user@ssh-gateway");
+                println!("   ");
+                println!("   Then in KVM Pro:");
+                println!("   • Use option [3]: Manual connect");
+                println!("   • Enter IP: 127.0.0.1");
+                println!("   • Enter Port: 5000\n");
+                
+                println!("2️⃣  REVERSE SSH TUNNEL (SERVER to CLIENT)");
+                println!("   ═════════════════════════════════════════");
+                println!("   Command on SERVER machine:");
+                println!("   $ ssh -R 5000:localhost:5000 user@client-machine");
+                println!("   ");
+                println!("   Then CLIENT connects to localhost:5000\n");
+                
+                println!("3️⃣  VPN CONNECTION");
+                println!("   ════════════════");
+                println!("   • Connect to company VPN first");
+                println!("   • Then use normal discovery (should find peers)\n");
+                
+                println!("4️⃣  ALTERNATIVE PORTS (if SSH not available)");
+                println!("   ════════════════════════════════════════");
+                println!("   Most corporate firewalls allow:");
+                println!("   • Port 80 (HTTP)");
+                println!("   • Port 443 (HTTPS)");
+                println!("   • Port 8080 (HTTP-Proxy)");
+                println!("   • Port 3389 (RDP - sometimes)\n");
+                
+                println!("5️⃣  SAME NETWORK (Simplest if Available)");
+                println!("   ═════════════════════════════════════");
+                println!("   • Connect both PCs to same Wi-Fi/LAN");
+                println!("   • Use normal discovery\n");
+                
+                println!("❓ HOW TO TELL IF FIREWALLED:");
+                println!("   • Peers found = 0 → Likely firewalled");
+                println!("   • Port status = BLOCKED → Definitely firewalled\n");
             }
             "5" => {
                 println!("Switching to Server Mode...");
