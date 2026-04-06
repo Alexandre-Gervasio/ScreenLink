@@ -127,7 +127,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Notify Slack
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v3.0.1
         with:
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           payload: |
