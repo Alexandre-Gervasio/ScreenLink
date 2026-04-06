@@ -1,15 +1,12 @@
 [package]
 name = "kvm-pro"
-version = "1.0.4"
+version = "1.0.9"
 edition = "2021"
-description = "A high-performance KVM software superior to Input Leap and Barrier"
+description = "A high-performance KVM software superior to Input Leap and Barrier - Single binary, no firewall issues"
 license = "MIT"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-bincode = "1.3"
 local-ip-address = "0.6"
 
 [target.'cfg(target_os = "windows")'.dependencies]
@@ -20,15 +17,7 @@ winres = "0.1"
 
 [[bin]]
 name = "kvm-pro"
-path = "core/src/p2p.rs"
-
-[[bin]]
-name = "kvm-pro-server"
 path = "core/src/main.rs"
-
-[[bin]]
-name = "kvm-pro-client"
-path = "core/src/client.rs"
 
 [profile.release]
 opt-level = 3

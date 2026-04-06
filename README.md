@@ -2,7 +2,7 @@
 
 > **A better alternative to Input Leap and Barrier** — Control multiple computers from a single keyboard and mouse. No installation. No dependencies. Just download and run.
 
-**Status**: ✅ v1.0.5 — Production Ready | **Portability**: 🎯 100% Portable | **Latency**: ⚡ <10ms | **Binary**: 🎯 Single Executable
+**Status**: ✅ v1.0.9 — Production Ready | **Portability**: 🎯 100% Portable | **Latency**: ⚡ <10ms | **Binary**: 🎯 Single Executable
 
 ---
 
