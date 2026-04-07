@@ -60,7 +60,7 @@ jobs:
         run: npm run build:frontend
 
       - name: Build Tauri app
-        run: npm run tauri:build -- --ci
+        run: npm run app:build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
