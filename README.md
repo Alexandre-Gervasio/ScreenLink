@@ -300,6 +300,10 @@ WebSocket Binary: [H.264 NAL Units]
 
 ## 📖 Documentation
 
+### Quick Start
+- **[USAGE.md](./USAGE.md)** - Download, install & use
+
+### Developer Documentation
 - **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System design & flow
 - **[PROTOCOL.md](./docs/PROTOCOL.md)** - WebSocket protocol details
 - **[SETUP.md](./docs/SETUP.md)** - Development environment
