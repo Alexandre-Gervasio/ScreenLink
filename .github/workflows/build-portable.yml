@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   build-tauri:
@@ -14,15 +15,12 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux
-            artifact: target/release/bundle/appimage/*.AppImage
             
           - os: windows-latest
             target: windows
-            artifact: target/release/bundle/msi/*.msi
             
           - os: macos-latest
             target: macos
-            artifact: target/release/bundle/dmg/*.dmg
 
     runs-on: ${{ matrix.os }}
     permissions:
@@ -47,7 +45,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
 
       # macOS setup
       - name: Setup macOS
@@ -65,44 +63,30 @@ jobs:
         run: npm run build:frontend
 
       - name: Build Tauri app
-        run: npm run tauri build -- --ci
+        run: npm run build:tauri -- --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get version
-        id: version
-        shell: bash
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Upload to Release  
+      - name: Upload artifacts to Release (Linux)
+        if: matrix.os == 'ubuntu-latest'
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ matrix.artifact }}
+          files: frontend/target/release/bundle/appimage/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  create-release:
-    name: Create Release
-    needs: build-tauri
-    runs-on: ubuntu-latest
-    if: success()
-    permissions:
-      contents: write
+      - name: Upload artifacts to Release (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: frontend/target/release/bundle/msi/*.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Get version
-        id: version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Release Summary
-        run: |
-          echo "✅ ScreenLink v${{ steps.version.outputs.version }} - Portable Executables Built"
-          echo ""
-          echo "📦 Downloads Available:"
-          echo "  - ScreenLink-${{ steps.version.outputs.version }}.exe (Windows)"
-          echo "  - ScreenLink-${{ steps.version.outputs.version }}.AppImage (Linux)"
-          echo "  - ScreenLink-${{ steps.version.outputs.version }}.dmg (macOS)"
+      - name: Upload artifacts to Release (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: frontend/target/release/bundle/dmg/*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
