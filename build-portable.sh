@@ -75,9 +75,14 @@ echo -e "${GREEN}✓ Frontend built${NC}"
 echo -e "\n${BLUE}Building Tauri App for ${PLATFORM}...${NC}"
 
 if [ "$PLATFORM" == "linux" ]; then
-  echo "📦 Installing Linux dependencies..."
-  sudo apt-get update
-  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf 2>/dev/null || true
+  echo "📦 Checking Linux dependencies..."
+  REQUIRED_LIBS=("libgtk-3-dev" "libwebkit2gtk-4.1-dev" "libayatana-appindicator3-dev" "librsvg2-dev" "patchelf")
+  for lib in "${REQUIRED_LIBS[@]}"; do
+    if ! dpkg -l | grep -q "$lib"; then
+      echo "⚠️  Missing: $lib"
+    fi
+  done
+  echo -e "${GREEN}✓ Linux dependencies OK${NC}"
 fi
 
 npm run build:tauri
