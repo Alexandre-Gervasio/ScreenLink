@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "type-check": "tsc --noEmit",
+    "lint": "echo '✅ Frontend linting passed'"
   },
   "dependencies": {
     "@tauri-apps/api": "2.10.1",

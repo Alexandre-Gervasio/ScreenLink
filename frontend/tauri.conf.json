@@ -1,8 +1,11 @@
 {
+  "productName": "ScreenLink",
+  "version": "1.0.0",
+  "identifier": "com.screenlink.app",
   "build": {
     "beforeDevCommand": "npm run dev --prefix ..",
     "beforeBuildCommand": "npm run build --prefix ..",
-    "devPath": "http://localhost:5173",
+    "devUrl": "http://localhost:5173",
     "frontendDist": "../dist"
   },
   "app": {
@@ -21,43 +24,15 @@
       "csp": null
     }
   },
-  "package": {
-    "productName": "ScreenLink",
-    "version": "1.0.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "window": {
-        "all": false,
-        "close": true,
-        "minimize": true,
-        "maximize": true,
-        "unmaximize": true,
-        "hide": true,
-        "show": true
-      },
-      "shell": {
-        "all": false,
-        "execute": true,
-        "sidecar": true,
-        "open": true
-      }
-    },
-    "security": {
-      "csp": null
-    },
-    "bundle": {
-      "active": true,
-      "targets": ["exe", "msi", "nsis", "appimage", "deb", "dmg"],
-      "identifier": "com.screenlink.app",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    }
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
   }
 }
