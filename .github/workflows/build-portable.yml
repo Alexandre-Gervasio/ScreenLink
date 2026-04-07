@@ -37,8 +37,6 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
 
       # Linux dependencies
       - name: Install Linux dependencies
