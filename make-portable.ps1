@@ -32,26 +32,28 @@ if (Test-Path $WIN_PORTABLE) {
     Copy-Item $WIN_PORTABLE (Join-Path $WINDOWS_DIR "ScreenLink.exe")
     
     # Criar batch script
-    @"
+    $batContent = @"
 @echo off
 REM ScreenLink - Portable Version for Windows
 REM NO INSTALLATION REQUIRED!
 REM Just double-click this file or run: ScreenLink.exe
 
 "%~dp0ScreenLink.exe" %*
-"@ | Out-File (Join-Path $WINDOWS_DIR "run.bat") -Encoding ASCII
+"@
+    Set-Content -Path (Join-Path $WINDOWS_DIR "run.bat") -Value $batContent -Encoding ASCII -Force
     
     # Criar PowerShell script
-    @"
+    $psContent = @"
 # ScreenLink - Portable Version for Windows
 # NO INSTALLATION REQUIRED!
 
 `$scriptPath = Split-Path -Parent `$MyInvocation.MyCommand.Path
 & "`$scriptPath\ScreenLink.exe"
-"@ | Out-File (Join-Path $WINDOWS_DIR "run.ps1") -Encoding UTF8
+"@
+    Set-Content -Path (Join-Path $WINDOWS_DIR "run.ps1") -Value $psContent -Encoding UTF8 -Force
     
     # Criar README
-    @"
+    $readmeContent = @"
 ScreenLink - Portable Version (Windows)
 ======================================
 
@@ -72,7 +74,8 @@ Troubleshooting:
   This is normal for unsigned executables.
 
 Enjoy!
-"@ | Out-File (Join-Path $WINDOWS_DIR "README.txt") -Encoding ASCII
+"@
+    Set-Content -Path (Join-Path $WINDOWS_DIR "README.txt") -Value $readmeContent -Encoding ASCII -Force
     
     # Criar ZIP
     $ZIP_PATH = Join-Path $DIST_DIR "ScreenLink-$VERSION-windows-portable.zip"
