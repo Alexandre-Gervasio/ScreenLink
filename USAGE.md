@@ -10,11 +10,21 @@
 
 ### Escolha seu Sistema Operacional:
 
+#### 🟢 Instaladores (Recomendado)
+
 | Sistema | Arquivo | 
 |---------|---------|
-| 🪟 **Windows** | `ScreenLink_1.0.0_x64.msi` |
-| 🍎 **macOS** | `ScreenLink_1.0.0_x64.dmg` |
+| 🪟 **Windows** | `ScreenLink_1.0.0_x64_en-US.msi` |
+| 🍎 **macOS** | `ScreenLink_1.0.0_aarch64.dmg` |
 | 🐧 **Linux** | `ScreenLink_1.0.0_amd64.AppImage` |
+
+#### 🟡 Portáveis (Sem instalação - Nenhuma permissão de admin)
+
+| Sistema | Arquivo | 
+|---------|---------|
+| 🪟 **Windows Portátil** | `ScreenLink-1.0.0-windows-portable.zip` |
+| 🍎 **macOS Portátil** | `ScreenLink-1.0.0-macos-portable.zip` |
+| 🐧 **Linux Portátil** | `ScreenLink-1.0.0-linux-portable.zip` |
 
 ---
 
@@ -34,6 +44,57 @@
 ```bash
 chmod +x ScreenLink_1.0.0_amd64.AppImage
 ./ScreenLink_1.0.0_amd64.AppImage
+```
+
+#### ⚠️ Se o AppImage não abrir no Linux:
+
+**Problema**: Erro de permissão ou FUSE não disponível
+
+**Solução 1 - Extrair e executar:**
+```bash
+chmod +x ScreenLink_1.0.0_amd64.AppImage
+./ScreenLink_1.0.0_amd64.AppImage --appimage-extract
+cd squashfs-root
+./AppRun
+```
+
+**Solução 2 - Usar modo FUSE fallback:**
+```bash
+export APPIMAGE_EXTRACT_AND_RUN=1
+chmod +x ScreenLink_1.0.0_amd64.AppImage
+./ScreenLink_1.0.0_amd64.AppImage
+```
+
+**Solução 3 - Usar versão portátil (não precisa de FUSE):**
+1. Descompacte `ScreenLink-1.0.0-linux-portable.zip`
+2. Execute `./run.sh`
+
+---
+
+## 📦 Versão Portátil (Sem Instalação)
+
+### Windows Portátil
+1. Descompacte `ScreenLink-1.0.0-windows-portable.zip`
+2. Execute `ScreenLink.exe` ou `run.bat`
+
+### macOS Portátil
+1. Descompacte `ScreenLink-1.0.0-macos-portable.zip`
+2. Execute `./run.sh` ou clique em `ScreenLink.app`
+
+### Linux Portátil
+1. Descompacte `ScreenLink-1.0.0-linux-portable.zip`
+2. Execute `./run.sh`
+
+```bash
+unzip ScreenLink-1.0.0-linux-portable.zip
+cd ScreenLink-1.0.0-linux-portable
+./run.sh
+```
+
+Se receber erro de permissão:
+```bash
+chmod +x run.sh ScreenLink.AppImage
+./run.sh
 ```
 
 ---
