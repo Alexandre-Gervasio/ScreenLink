@@ -250,33 +250,164 @@ footer {
   margin: 0;
 }
 
-/* Connect Box Layout */
+/* Status Box */
+.status-box {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.status-box h3 {
+  margin: 0 0 15px 0;
+  color: #667eea;
+  font-size: 0.95em;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.status-indicator.connected {
+  border-left: 4px solid #4caf50;
+}
+
+.status-indicator.waiting {
+  border-left: 4px solid #ff9800;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.status-indicator.connected .status-dot {
+  background: #4caf50;
+}
+
+.status-indicator.waiting .status-dot {
+  background: #ff9800;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+}
+
+.connection-details {
+  font-size: 0.85em;
+  color: #999;
+  text-align: center;
+  margin-top: 8px;
+  word-break: break-all;
+}
+
+.status-message {
+  background: #e3f2fd;
+  padding: 12px;
+  border-radius: 6px;
+  color: #1976d2;
+  margin-top: 10px;
+}
+
+.status-message p {
+  margin: 0;
+  font-size: 0.95em;
+}
+
+/* Disconnect Button */
+.disconnect-btn {
+  background: #f44336;
+  padding: 8px 16px;
+  font-size: 0.95em;
+  border-radius: 6px;
+}
+
+.disconnect-btn:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+}
+
+/* Input Group */
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1em;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.input-group input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.input-group button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.input-group button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Copy Button */
+.copy-btn {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  font-size: 0.9em;
+}
+
+.copy-btn:hover {
+  background: #764ba2;
+}
+
+/* Connect Box */
 .connect-box {
   display: flex;
   flex-direction: column;
   gap: 15px;
   margin: 30px 0;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
 }
 
 .connect-box label {
   text-align: left;
   font-weight: 600;
   color: #333;
-}
-
-.connect-box input {
-  padding: 12px 16px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
-  font-family: monospace;
-  text-transform: uppercase;
-}
-
-.connect-box button {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  margin-bottom: 5px;
 }
 
 /* Responsive */
