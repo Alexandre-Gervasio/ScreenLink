@@ -1,184 +1,91 @@
 #!/bin/bash
-
-# Script to create portable versions of ScreenLink
-# No admin required - just extract and run!
-
-# Disable exit on error to allow partial success
-# set -e
-
 VERSION="1.0.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="$SCRIPT_DIR/dist-portable"
 
-echo "Creating portable versions of ScreenLink v${VERSION}..."
 mkdir -p "$DIST_DIR"
 
-# ============================================================================
 # LINUX PORTABLE
-# ============================================================================
-
-if [ -f "$SCRIPT_DIR/frontend/target/release/bundle/appimage/ScreenLink_${VERSION}_amd64.AppImage" ]; then
-    echo ""
+LINUX_APPIMAGE="$SCRIPT_DIR/frontend/target/release/bundle/appimage/ScreenLink_${VERSION}_amd64.AppImage"
+if [ -f "$LINUX_APPIMAGE" ]; then
     echo "Linux Portable..."
-    
     LINUX_DIR="$DIST_DIR/ScreenLink-${VERSION}-linux-portable"
+    rm -rf "$LINUX_DIR"
     mkdir -p "$LINUX_DIR"
     
-    # Copiar AppImage
-    cp "$SCRIPT_DIR/frontend/target/release/bundle/appimage/ScreenLink_${VERSION}_amd64.AppImage" \
-       "$LINUX_DIR/ScreenLink"
+    cp "$LINUX_APPIMAGE" "$LINUX_DIR/ScreenLink"
     chmod +x "$LINUX_DIR/ScreenLink"
     
-    # Criar script de execução simples
-    cat > "$LINUX_DIR/run.sh" << 'EOF'
-#!/bin/bash
-# ScreenLink - Portable Version for Linux
-# No admin required - just run this script!
-
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec "$DIR/ScreenLink" "$@"
-EOF
+    echo "#!/bin/bash" > "$LINUX_DIR/run.sh"
+    echo 'DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"' >> "$LINUX_DIR/run.sh"
+    echo 'exec "$DIR/ScreenLink" "$@"' >> "$LINUX_DIR/run.sh"
     chmod +x "$LINUX_DIR/run.sh"
     
-    # Criar README
-    cat > "$LINUX_DIR/README.txt" << 'EOF'
-ScreenLink - Portable Version (Linux)
-=====================================
-
-NO INSTALLATION REQUIRED!
-
-To run:
-  ./run.sh
-  
-Or directly:
-  ./ScreenLink
-  
-That's it! No admin permissions needed.
-
-Troubleshooting:
-- If it doesn't run, try: chmod +x ./ScreenLink && ./ScreenLink
-- Some systems may need additional libraries (run.sh handles this)
-
-Enjoy!
-EOF
+    echo "ScreenLink - Portable Linux" > "$LINUX_DIR/README.txt"
+    echo "" >> "$LINUX_DIR/README.txt"
+    echo "Run: ./run.sh or ./ScreenLink" >> "$LINUX_DIR/README.txt"
     
-    # Criar ZIP
-    cd "$DIST_DIR" && zip -r "ScreenLink-${VERSION}-linux-portable.zip" "ScreenLink-${VERSION}-linux-portable/" > /dev/null && cd "$SCRIPT_DIR"
-    
-    echo "OK: ScreenLink-${VERSION}-linux-portable.zip"
+    cd "$DIST_DIR"
+    zip -r "ScreenLink-${VERSION}-linux-portable.zip" "ScreenLink-${VERSION}-linux-portable/"
+    cd "$SCRIPT_DIR"
+    echo "OK: linux-portable.zip"
 else
-    echo "Linux AppImage not found at: $SCRIPT_DIR/frontend/target/release/bundle/appimage/ScreenLink_${VERSION}_amd64.AppImage"
+    echo "Missing: $LINUX_APPIMAGE"
 fi
 
-# ============================================================================
-# MACOS PORTABLE (se disponível)
-# ============================================================================
-
-if [ -d "$SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app" ]; then
-    echo ""
+# MACOS PORTABLE
+MACOS_APP="$SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app"
+if [ -d "$MACOS_APP" ]; then
     echo "Apple macOS Portable..."
-    
     MACOS_DIR="$DIST_DIR/ScreenLink-${VERSION}-macos-portable"
+    rm -rf "$MACOS_DIR"
     mkdir -p "$MACOS_DIR"
     
-    # Copiar app bundle
-    cp -r "$SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app" "$MACOS_DIR/ScreenLink.app"
+    cp -r "$MACOS_APP" "$MACOS_DIR/ScreenLink.app"
     
-    # Criar script de execução
-    cat > "$MACOS_DIR/run.sh" << 'EOF'
-#!/bin/bash
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-open -a "$DIR/ScreenLink.app"
-EOF
+    echo "#!/bin/bash" > "$MACOS_DIR/run.sh"
+    echo 'DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"' >> "$MACOS_DIR/run.sh"
+    echo 'open -a "$DIR/ScreenLink.app"' >> "$MACOS_DIR/run.sh"
     chmod +x "$MACOS_DIR/run.sh"
     
-    # Criar README
-    cat > "$MACOS_DIR/README.txt" << 'EOF'
-ScreenLink - Portable Version (macOS)
-====================================
-
-NO INSTALLATION REQUIRED!
-
-To run:
-  Double-click ScreenLink.app
-  Or: ./run.sh
-
-No admin permissions needed - just run!
-
-Enjoy!
-EOF
+    echo "ScreenLink - Portable macOS" > "$MACOS_DIR/README.txt"
+    echo "" >> "$MACOS_DIR/README.txt"
+    echo "Run: ./run.sh or double-click ScreenLink.app" >> "$MACOS_DIR/README.txt"
     
-    # Criar ZIP
-    cd "$DIST_DIR" && zip -r "ScreenLink-${VERSION}-macos-portable.zip" "ScreenLink-${VERSION}-macos-portable/" > /dev/null && cd "$SCRIPT_DIR"
-    
-    echo "OK: ScreenLink-${VERSION}-macos-portable.zip"
+    cd "$DIST_DIR"
+    zip -r "ScreenLink-${VERSION}-macos-portable.zip" "ScreenLink-${VERSION}-macos-portable/"
+    cd "$SCRIPT_DIR"
+    echo "OK: macos-portable.zip"
 else
-    echo "macOS app not found at: $SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app"
+    echo "Missing: $MACOS_APP"
 fi
 
-# ============================================================================
-# WINDOWS PORTABLE (manual - executável extraído do NSIS/MSI)
-# ============================================================================
-
-if [ -f "$SCRIPT_DIR/frontend/target/release/ScreenLink.exe" ]; then
-    echo ""
+# WINDOWS PORTABLE
+WINDOWS_EXE="$SCRIPT_DIR/frontend/target/release/ScreenLink.exe"
+if [ -f "$WINDOWS_EXE" ]; then
     echo "Windows Portable..."
-    
     WINDOWS_DIR="$DIST_DIR/ScreenLink-${VERSION}-windows-portable"
+    rm -rf "$WINDOWS_DIR"
     mkdir -p "$WINDOWS_DIR"
     
-    # Copiar executável
-    cp "$SCRIPT_DIR/frontend/target/release/ScreenLink.exe" "$WINDOWS_DIR/ScreenLink.exe"
+    cp "$WINDOWS_EXE" "$WINDOWS_DIR/ScreenLink.exe"
     
-    # Criar batch script
-    cat > "$WINDOWS_DIR/run.bat" << 'EOF'
-@echo off
-REM ScreenLink - Portable Version for Windows
-REM NO INSTALLATION REQUIRED!
-REM Just double-click this file or run: ScreenLink.exe
-
-"%~dp0ScreenLink.exe" %*
-EOF
+    echo "@echo off" > "$WINDOWS_DIR/run.bat"
+    echo "%~dp0ScreenLink.exe %*" >> "$WINDOWS_DIR/run.bat"
     
-    # Criar PowerShell script
-    cat > "$WINDOWS_DIR/run.ps1" << 'EOF'
-# ScreenLink - Portable Version for Windows
-# NO INSTALLATION REQUIRED!
-
-$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-& "$scriptPath\ScreenLink.exe"
-EOF
+    echo '$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path' > "$WINDOWS_DIR/run.ps1"
+    echo '& "$scriptPath\ScreenLink.exe"' >> "$WINDOWS_DIR/run.ps1"
     
-    # Criar README.txt
-    cat > "$WINDOWS_DIR/README.txt" << 'EOF'
-ScreenLink - Portable Version (Windows)
-======================================
-
-NO INSTALLATION REQUIRED!
-
-To run:
-  1. Double-click ScreenLink.exe
-  2. Or double-click run.bat
-  3. Or run: ScreenLink.exe
-
-No admin permissions needed!
-
-Troubleshooting:
-  If Windows shows "Windows protected your PC":
-    1. Click "More info"
-    2. Click "Run anyway"
-  
-  This is normal for unsigned executables.
-
-Enjoy!
-EOF
+    echo "ScreenLink - Portable Windows" > "$WINDOWS_DIR/README.txt"
+    echo "" >> "$WINDOWS_DIR/README.txt"
+    echo "Run: ScreenLink.exe or run.bat or run.ps1" >> "$WINDOWS_DIR/README.txt"
     
-    # Criar ZIP
-    cd "$DIST_DIR" && zip -r "ScreenLink-${VERSION}-windows-portable.zip" "ScreenLink-${VERSION}-windows-portable/" > /dev/null && cd "$SCRIPT_DIR"
-    
-    echo "OK: ScreenLink-${VERSION}-windows-portable.zip"
+    cd "$DIST_DIR"
+    zip -r "ScreenLink-${VERSION}-windows-portable.zip" "ScreenLink-${VERSION}-windows-portable/"
+    cd "$SCRIPT_DIR"
+    echo "OK: windows-portable.zip"
 else
-    echo "Windows exe not found at: $SCRIPT_DIR/frontend/target/release/ScreenLink.exe"
+    echo "Missing: $WINDOWS_EXE"
 fi
 fi
 
