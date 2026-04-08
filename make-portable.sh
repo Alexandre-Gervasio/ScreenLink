@@ -3,7 +3,8 @@
 # Script to create portable versions of ScreenLink
 # No admin required - just extract and run!
 
-set -e
+# Disable exit on error to allow partial success
+# set -e
 
 VERSION="1.0.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -62,11 +63,11 @@ Enjoy!
 EOF
     
     # Criar ZIP
-    cd "$DIST_DIR"
-    zip -r "ScreenLink-${VERSION}-linux-portable.zip" "ScreenLink-${VERSION}-linux-portable/" > /dev/null
-    cd "$SCRIPT_DIR"
+    cd "$DIST_DIR" && zip -r "ScreenLink-${VERSION}-linux-portable.zip" "ScreenLink-${VERSION}-linux-portable/" > /dev/null && cd "$SCRIPT_DIR"
     
     echo "OK: ScreenLink-${VERSION}-linux-portable.zip"
+else
+    echo "Linux AppImage not found at: $SCRIPT_DIR/frontend/target/release/bundle/appimage/ScreenLink_${VERSION}_amd64.AppImage"
 fi
 
 # ============================================================================
@@ -108,11 +109,11 @@ Enjoy!
 EOF
     
     # Criar ZIP
-    cd "$DIST_DIR"
-    zip -r "ScreenLink-${VERSION}-macos-portable.zip" "ScreenLink-${VERSION}-macos-portable/" > /dev/null
-    cd "$SCRIPT_DIR"
+    cd "$DIST_DIR" && zip -r "ScreenLink-${VERSION}-macos-portable.zip" "ScreenLink-${VERSION}-macos-portable/" > /dev/null && cd "$SCRIPT_DIR"
     
     echo "OK: ScreenLink-${VERSION}-macos-portable.zip"
+else
+    echo "macOS app not found at: $SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app"
 fi
 
 # ============================================================================
@@ -148,7 +149,7 @@ $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 & "$scriptPath\ScreenLink.exe"
 EOF
     
-    # Criar README
+    # Criar README.txt
     cat > "$WINDOWS_DIR/README.txt" << 'EOF'
 ScreenLink - Portable Version (Windows)
 ======================================
@@ -173,11 +174,11 @@ Enjoy!
 EOF
     
     # Criar ZIP
-    cd "$DIST_DIR"
-    zip -r "ScreenLink-${VERSION}-windows-portable.zip" "ScreenLink-${VERSION}-windows-portable/" > /dev/null
-    cd "$SCRIPT_DIR"
+    cd "$DIST_DIR" && zip -r "ScreenLink-${VERSION}-windows-portable.zip" "ScreenLink-${VERSION}-windows-portable/" > /dev/null && cd "$SCRIPT_DIR"
     
     echo "OK: ScreenLink-${VERSION}-windows-portable.zip"
+else
+    echo "Windows exe not found at: $SCRIPT_DIR/frontend/target/release/ScreenLink.exe"
 fi
 fi
 
