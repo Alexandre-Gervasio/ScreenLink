@@ -32,49 +32,52 @@ if (Test-Path $WIN_PORTABLE) {
     Copy-Item $WIN_PORTABLE (Join-Path $WINDOWS_DIR "ScreenLink.exe")
     
     # Criar batch script
-    $batContent = @"
-@echo off
-REM ScreenLink - Portable Version for Windows
-REM NO INSTALLATION REQUIRED!
-REM Just double-click this file or run: ScreenLink.exe
-
-"%~dp0ScreenLink.exe" %*
-"@
+    $batLines = @(
+        '@echo off',
+        'REM ScreenLink - Portable Version for Windows',
+        'REM NO INSTALLATION REQUIRED!',
+        'REM Just double-click this file or run: ScreenLink.exe',
+        '',
+        '"%~dp0ScreenLink.exe" %*'
+    )
+    $batContent = $batLines -join ([System.Environment]::NewLine)
     Set-Content -Path (Join-Path $WINDOWS_DIR "run.bat") -Value $batContent -Encoding ASCII -Force
     
     # Criar PowerShell script
-    $psContent = @"
-# ScreenLink - Portable Version for Windows
-# NO INSTALLATION REQUIRED!
-
-`$scriptPath = Split-Path -Parent `$MyInvocation.MyCommand.Path
-& "`$scriptPath\ScreenLink.exe"
-"@
+    $psLines = @(
+        '# ScreenLink - Portable Version for Windows',
+        '# NO INSTALLATION REQUIRED!',
+        '',
+        '$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path',
+        '& "$scriptPath\ScreenLink.exe"'
+    )
+    $psContent = $psLines -join ([System.Environment]::NewLine)
     Set-Content -Path (Join-Path $WINDOWS_DIR "run.ps1") -Value $psContent -Encoding UTF8 -Force
     
     # Criar README
-    $readmeContent = @"
-ScreenLink - Portable Version (Windows)
-======================================
-
-NO INSTALLATION REQUIRED!
-
-To run:
-  1. Double-click ScreenLink.exe
-  2. Or double-click run.bat
-  3. Or run via PowerShell: .\run.ps1
-
-No admin permissions needed!
-
-Troubleshooting:
-  If Windows shows "Windows protected your PC":
-    1. Click "More info"
-    2. Click "Run anyway"
-  
-  This is normal for unsigned executables.
-
-Enjoy!
-"@
+    $readmeLines = @(
+        'ScreenLink - Portable Version (Windows)',
+        '======================================',
+        '',
+        'NO INSTALLATION REQUIRED!',
+        '',
+        'To run:',
+        '  1. Double-click ScreenLink.exe',
+        '  2. Or double-click run.bat',
+        '  3. Or run via PowerShell: .\run.ps1',
+        '',
+        'No admin permissions needed!',
+        '',
+        'Troubleshooting:',
+        '  If Windows shows "Windows protected your PC":',
+        '    1. Click "More info"',
+        '    2. Click "Run anyway"',
+        '',
+        '  This is normal for unsigned executables.',
+        '',
+        'Enjoy!'
+    )
+    $readmeContent = $readmeLines -join ([System.Environment]::NewLine)
     Set-Content -Path (Join-Path $WINDOWS_DIR "README.txt") -Value $readmeContent -Encoding ASCII -Force
     
     # Criar ZIP
