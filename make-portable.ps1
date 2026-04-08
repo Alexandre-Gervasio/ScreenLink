@@ -97,13 +97,16 @@ if (Test-Path $WIN_PORTABLE) {
 # ============================================================================
 
 Write-Host ""
-Write-Host "✨ Versões Portáveis Criadas:" -ForegroundColor Green
+Write-Host "=== Versoes Portaveis Criadas ===" -ForegroundColor Green
 Write-Host ""
-Get-ChildItem (Join-Path $DIST_DIR "*.zip") -ErrorAction SilentlyContinue | ForEach-Object {
-    Write-Host "  - $($_.Name) ($([math]::Round($_.Length/1MB, 2)) MB)"
+
+$zips = Get-ChildItem (Join-Path $DIST_DIR "*.zip") -ErrorAction SilentlyContinue
+foreach ($zip in $zips) {
+    $sizeMB = [math]::Round($zip.Length / 1MB, 2)
+    Write-Host "  - $($zip.Name) ($sizeMB MB)"
 }
 
 Write-Host ""
-Write-Host "📍 Localização: $DIST_DIR/" -ForegroundColor Yellow
+Write-Host "Localizacao: $DIST_DIR/" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "✅ Pronto para download!" -ForegroundColor Green
+Write-Host "Pronto para download!" -ForegroundColor Green
