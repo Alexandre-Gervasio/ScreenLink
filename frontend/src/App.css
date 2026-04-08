@@ -187,34 +187,6 @@ footer {
   font-weight: bold;
 }
 
-/* Secondary Connection */
-.connect-box {
-  display: flex;
-  gap: 10px;
-  margin: 30px 0;
-}
-
-.connect-box input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
-  font-family: monospace;
-  text-transform: uppercase;
-}
-
-.connect-box input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.connect-box button {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
 .remote-display {
   margin-top: 30px;
   text-align: center;
@@ -240,6 +212,71 @@ footer {
 .video-container p {
   color: #999;
   font-size: 1.1em;
+}
+
+/* Loading State */
+.loading {
+  background: #e3f2fd;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  color: #1976d2;
+  font-weight: 500;
+  margin: 15px 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Error Message */
+.error-message {
+  background: #ffebee;
+  padding: 15px;
+  border-radius: 8px;
+  color: #c62828;
+  font-weight: 500;
+  margin: 15px 0;
+  border-left: 4px solid #c62828;
+}
+
+.error-message p {
+  margin: 0;
+}
+
+/* Connect Box Layout */
+.connect-box {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.connect-box label {
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+}
+
+.connect-box input {
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.connect-box button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
 
 /* Responsive */

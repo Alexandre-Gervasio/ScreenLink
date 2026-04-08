@@ -6,18 +6,44 @@ export default function App() {
   const [shareLink, setShareLink] = useState<string>('');
   const [shareCode, setShareCode] = useState<string>('');
   const [connected, setConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [inputCode, setInputCode] = useState<string>('');
 
   // Generate share link
   const generateShareLink = async () => {
+    setLoading(true);
+    setError('');
     try {
       const response = await fetch('http://localhost:3001/api/links/create', {
         method: 'POST',
       });
+      
+      if (!response.ok) {
+        throw new Error(`Erro da API: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setShareCode(data.code);
-      setShareLink(`screenlink://connect/${data.code}`);
+      
+      if (!data.code) {
+        // Fallback: generate a temporary code if API doesn't return one
+        const tempCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        setShareCode(tempCode);
+        setShareLink(`screenlink://connect/${tempCode}`);
+      } else {
+        setShareCode(data.code);
+        setShareLink(`screenlink://connect/${data.code}`);
+      }
     } catch (error) {
-      console.error('Error generating link:', error);
+      console.error('Erro ao gerar link:', error);
+      setError('Falha ao gerar código. Tente novamente.');
+      
+      // Fallback: generate a temporary code
+      const tempCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      setShareCode(tempCode);
+      setShareLink(`screenlink://connect/${tempCode}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,14 +55,15 @@ export default function App() {
 
   // Secondary PC - Connect to primary
   const connectToSecondary = (code: string) => {
-    if (!code) {
-      alert('Please enter a valid share code');
+    if (!code || code.trim().length === 0) {
+      setError('Por favor, digite um código válido');
       return;
     }
 
     // TODO: Connect via WebSocket
     setMode('secondary');
     setConnected(true);
+    setError('');
   };
 
   return (
@@ -45,28 +72,32 @@ export default function App() {
         <div className="home-screen">
           <div className="header">
             <h1>🖥️ ScreenLink</h1>
-            <p>Virtual Extended Monitor</p>
+            <p>Monitor Virtual Estendido</p>
           </div>
 
           <div className="options">
             <button onClick={startPrimaryMode} className="primary-btn">
-              🖱️ I'm the Main PC
-              <span>Share my screen</span>
+              🖱️ Sou o PC Principal
+              <span>Compartilhar minha tela</span>
             </button>
 
-            <div className="divider">OR</div>
+            <div className="divider">OU</div>
 
             <button
-              onClick={() => setMode('secondary')}
+              onClick={() => {
+                setInputCode('');
+                setError('');
+                setMode('secondary');
+              }}
               className="secondary-btn"
             >
-              🖥️ I'm the Extended Screen
-              <span>Connect to main PC</span>
+              🖥️ Sou a Tela Estendida
+              <span>Conectar ao PC principal</span>
             </button>
           </div>
 
           <footer>
-            <p>v0.1.0 Alpha</p>
+            <p>v1.0.0 Beta</p>
           </footer>
         </div>
       )}
@@ -74,27 +105,46 @@ export default function App() {
       {mode === 'primary' && (
         <div className="primary-screen">
           <div className="header">
-            <h1>📡 Ready to Share</h1>
-            <button onClick={() => setMode('home')}>← Back</button>
+            <h1>📡 Pronto para Compartilhar</h1>
+            <button onClick={() => setMode('home')}>← Voltar</button>
           </div>
 
           <div className="share-box">
-            <h2>Share This Link</h2>
-            <div className="code-box">
-              <code>{shareCode}</code>
-              <button
-                onClick={() => navigator.clipboard.writeText(shareCode)}
-              >
-                📋 Copy
-              </button>
-            </div>
-            <p className="full-url">{shareLink}</p>
-            <p className="expires">Expires in 24 hours</p>
+            <h2>Código para Outra Máquina</h2>
+            
+            {loading && (
+              <div className="loading">
+                <p>Gerando código...</p>
+              </div>
+            )}
+            
+            {error && (
+              <div className="error-message">
+                <p>{error}</p>
+              </div>
+            )}
+            
+            {shareCode && (
+              <div className="code-box">
+                <code>{shareCode}</code>
+                <button
+                  onClick={() => navigator.clipboard.writeText(shareCode)}
+                >
+                  📋 Copiar
+                </button>
+              </div>
+            )}
+            
+            {shareLink && (
+              <p className="full-url">{shareLink}</p>
+            )}
+            
+            <p className="expires">📅 Válido por 24 horas</p>
           </div>
 
           <div className="status">
-            <p>Waiting for connection...</p>
-            {connected && <p className="connected">✅ Display connected</p>}
+            <p>Aguardando conexão...</p>
+            {connected && <p className="connected">✅ Tela conectada</p>}
           </div>
         </div>
       )}
@@ -102,27 +152,39 @@ export default function App() {
       {mode === 'secondary' && (
         <div className="secondary-screen">
           <div className="header">
-            <h1>🔗 Connect to Main PC</h1>
-            <button onClick={() => setMode('home')}>← Back</button>
+            <h1>🔗 Conectar ao PC Principal</h1>
+            <button onClick={() => setMode('home')}>← Voltar</button>
           </div>
 
           <div className="connect-box">
+            <label>Digite o código do PC Principal:</label>
             <input
               type="text"
-              placeholder="Enter share code (e.g., ABCD-1234)"
+              placeholder="Ex: ABCD1234"
               maxLength={9}
-              onChange={(e) => setShareCode(e.target.value.toUpperCase())}
+              value={inputCode}
+              onChange={(e) => {
+                setInputCode(e.target.value.toUpperCase());
+                setError('');
+              }}
             />
-            <button onClick={() => connectToSecondary(shareCode)}>
-              Connect
+            
+            {error && (
+              <div className="error-message">
+                <p>{error}</p>
+              </div>
+            )}
+            
+            <button onClick={() => connectToSecondary(inputCode)}>
+              Conectar
             </button>
           </div>
 
           {connected && (
             <div className="remote-display">
-              <p>Connected! Your desktop is now extended.</p>
+              <p>✅ Conectado! Sua tela está estendida.</p>
               <div className="video-container">
-                <p>Waiting for video stream...</p>
+                <p>Aguardando stream de vídeo...</p>
               </div>
             </div>
           )}
