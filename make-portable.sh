@@ -87,7 +87,6 @@ if [ -f "$WINDOWS_EXE" ]; then
 else
     echo "Missing: $WINDOWS_EXE"
 fi
-fi
 
 # ============================================================================
 # SUMMARY
