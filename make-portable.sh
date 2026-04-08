@@ -9,7 +9,7 @@ VERSION="1.0.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="$SCRIPT_DIR/dist-portable"
 
-echo "📦 Criando versões portáveis do ScreenLink v${VERSION}..."
+echo "Creating portable versions of ScreenLink v${VERSION}..."
 mkdir -p "$DIST_DIR"
 
 # ============================================================================
@@ -18,7 +18,7 @@ mkdir -p "$DIST_DIR"
 
 if [ -f "$SCRIPT_DIR/frontend/target/release/bundle/appimage/ScreenLink_${VERSION}_amd64.AppImage" ]; then
     echo ""
-    echo "🐧 Preparando Linux Portable..."
+    echo "Linux Portable..."
     
     LINUX_DIR="$DIST_DIR/ScreenLink-${VERSION}-linux-portable"
     mkdir -p "$LINUX_DIR"
@@ -66,22 +66,22 @@ EOF
     zip -r "ScreenLink-${VERSION}-linux-portable.zip" "ScreenLink-${VERSION}-linux-portable/" > /dev/null
     cd "$SCRIPT_DIR"
     
-    echo "✅ Linux Portable: ScreenLink-${VERSION}-linux-portable.zip"
+    echo "OK: ScreenLink-${VERSION}-linux-portable.zip"
 fi
 
 # ============================================================================
 # MACOS PORTABLE (se disponível)
 # ============================================================================
 
-if [ -d "$SCRIPT_DIR/frontend/target/release/ScreenLink.app" ]; then
+if [ -d "$SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app" ]; then
     echo ""
-    echo "🍎 Preparando macOS Portable..."
+    echo "Apple macOS Portable..."
     
     MACOS_DIR="$DIST_DIR/ScreenLink-${VERSION}-macos-portable"
     mkdir -p "$MACOS_DIR"
     
     # Copiar app bundle
-    cp -r "$SCRIPT_DIR/frontend/target/release/ScreenLink.app" "$MACOS_DIR/ScreenLink.app"
+    cp -r "$SCRIPT_DIR/frontend/target/release/bundle/macos/ScreenLink.app" "$MACOS_DIR/ScreenLink.app"
     
     # Criar script de execução
     cat > "$MACOS_DIR/run.sh" << 'EOF'
@@ -112,7 +112,7 @@ EOF
     zip -r "ScreenLink-${VERSION}-macos-portable.zip" "ScreenLink-${VERSION}-macos-portable/" > /dev/null
     cd "$SCRIPT_DIR"
     
-    echo "✅ macOS Portable: ScreenLink-${VERSION}-macos-portable.zip"
+    echo "OK: ScreenLink-${VERSION}-macos-portable.zip"
 fi
 
 # ============================================================================
@@ -121,7 +121,7 @@ fi
 
 if [ -f "$SCRIPT_DIR/frontend/target/release/ScreenLink.exe" ]; then
     echo ""
-    echo "🪟 Preparando Windows Portable..."
+    echo "Windows Portable..."
     
     WINDOWS_DIR="$DIST_DIR/ScreenLink-${VERSION}-windows-portable"
     mkdir -p "$WINDOWS_DIR"
@@ -177,7 +177,8 @@ EOF
     zip -r "ScreenLink-${VERSION}-windows-portable.zip" "ScreenLink-${VERSION}-windows-portable/" > /dev/null
     cd "$SCRIPT_DIR"
     
-    echo "✅ Windows Portable: ScreenLink-${VERSION}-windows-portable.zip"
+    echo "OK: ScreenLink-${VERSION}-windows-portable.zip"
+fi
 fi
 
 # ============================================================================
