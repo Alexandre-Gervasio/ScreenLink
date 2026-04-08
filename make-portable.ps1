@@ -89,24 +89,5 @@ if (Test-Path $WIN_PORTABLE) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::CreateFromDirectory($WINDOWS_DIR, $ZIP_PATH)
     
-    Write-Host "✅ Windows Portable: ScreenLink-$VERSION-windows-portable.zip"
+    Write-Host "OK Windows Portable: ScreenLink-$VERSION-windows-portable.zip"
 }
-
-# ============================================================================
-# SUMMARY
-# ============================================================================
-
-Write-Host ""
-Write-Host "=== Versoes Portaveis Criadas ===" -ForegroundColor Green
-Write-Host ""
-
-$zips = Get-ChildItem (Join-Path $DIST_DIR "*.zip") -ErrorAction SilentlyContinue
-foreach ($zip in $zips) {
-    $sizeMB = [math]::Round($zip.Length / 1MB, 2)
-    Write-Host "  - $($zip.Name) ($sizeMB MB)"
-}
-
-Write-Host ""
-Write-Host "Localizacao: $DIST_DIR/" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "Pronto para download!" -ForegroundColor Green
