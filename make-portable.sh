@@ -40,7 +40,7 @@ if [ -f "$LINUX_APPIMAGE" ]; then
     echo "" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "Ou simplesmente:" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "  ./run.sh" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "" >> "$LINUX_DIR/LEIA-ME.txt
+    echo "" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "=== PROBLEM: AppImage won't open? ===" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "If the file won't open when clicking, run in terminal:" >> "$LINUX_DIR/LEIA-ME.txt"
