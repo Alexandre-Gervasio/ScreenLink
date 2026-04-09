@@ -17,12 +17,29 @@ if [ -f "$LINUX_APPIMAGE" ]; then
     cp "$LINUX_APPIMAGE" "$LINUX_DIR/ScreenLink.AppImage"
     chmod +x "$LINUX_DIR/ScreenLink.AppImage"
     
-    # Create a wrapper script that ensures permissions
+    # Copy backend server
+    if [ -d "$SCRIPT_DIR/backend" ]; then
+        cp -r "$SCRIPT_DIR/backend" "$LINUX_DIR/"
+        echo "✓ Backend included"
+    fi
+    
+    # Create a wrapper script that starts backend and app
     echo "#!/bin/bash" > "$LINUX_DIR/run.sh"
     echo 'DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"' >> "$LINUX_DIR/run.sh"
     echo 'APPIMAGE="$DIR/ScreenLink.AppImage"' >> "$LINUX_DIR/run.sh"
+    echo '' >> "$LINUX_DIR/run.sh"
+    echo '# Start backend server in background if not already running' >> "$LINUX_DIR/run.sh"
+    echo 'if [ -d "$DIR/backend" ] && ! nc -z localhost 3001 2>/dev/null; then' >> "$LINUX_DIR/run.sh"
+    echo '    cd "$DIR/backend"' >> "$LINUX_DIR/run.sh"
+    echo '    npm install --silent 2>/dev/null' >> "$LINUX_DIR/run.sh"
+    echo '    npm run start > /dev/null 2>&1 &' >> "$LINUX_DIR/run.sh"
+    echo '    sleep 1  # Give server time to start' >> "$LINUX_DIR/run.sh"
+    echo '    cd "$DIR"' >> "$LINUX_DIR/run.sh"
+    echo 'fi' >> "$LINUX_DIR/run.sh"
+    echo '' >> "$LINUX_DIR/run.sh"
     echo '# Ensure executable permission' >> "$LINUX_DIR/run.sh"
     echo 'chmod +x "$APPIMAGE" 2>/dev/null' >> "$LINUX_DIR/run.sh"
+    echo '' >> "$LINUX_DIR/run.sh"
     echo '# Run AppImage with FUSE fallback support' >> "$LINUX_DIR/run.sh"
     echo 'export APPIMAGE_EXTRACT_AND_RUN=1  # For systems without FUSE' >> "$LINUX_DIR/run.sh"
     echo 'exec "$APPIMAGE" "$@"' >> "$LINUX_DIR/run.sh"
@@ -31,22 +48,20 @@ if [ -f "$LINUX_APPIMAGE" ]; then
     # Create a simple instruction file with permission instructions
     echo "LEIA PRIMEIRO - READ FIRST" > "$LINUX_DIR/LEIA-ME.txt"
     echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "=== PROBLEMA: AppImage não abre? ===" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "Se o arquivo não abrir ao clicar, execute no terminal:" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "  chmod +x ScreenLink.AppImage" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "=== EXECUTOR ===" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "Para executar:" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "  ./run.sh" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "Ou simplesmente:" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "  ./run.sh" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "Ou diretamente:" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "  chmod +x ScreenLink.AppImage && ./ScreenLink.AppImage" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "=== PROBLEM: AppImage won't open? ===" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "=== TROUBLESHOOTING ===" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "If AppImage won't open:" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "  chmod +x ScreenLink.AppImage run.sh" >> "$LINUX_DIR/LEIA-ME.txt"
     echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "If the file won't open when clicking, run in terminal:" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "  chmod +x ScreenLink.AppImage" >> "$LINUX_DIR/LEIA-ME.txt"
-    echo "  ./run.sh" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "If error about FUSE (fusion filesystem):" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "  export APPIMAGE_EXTRACT_AND_RUN=1" >> "$LINUX_DIR/LEIA-ME.txt"
+    echo "  ./ScreenLink.AppImage" >> "$LINUX_DIR/LEIA-ME.txt"
     
     # Better README with permission instructions
     echo "ScreenLink - Portable Linux" > "$LINUX_DIR/README.txt"
@@ -56,24 +71,7 @@ if [ -f "$LINUX_APPIMAGE" ]; then
     echo "Opção 1 (Recomendado - Automático):" >> "$LINUX_DIR/README.txt"
     echo "  ./run.sh" >> "$LINUX_DIR/README.txt"
     echo "" >> "$LINUX_DIR/README.txt"
-    echo "Opção 2 (Direto com permissão):" >> "$LINUX_DIR/README.txt"
-    echo "  chmod +x ScreenLink.AppImage && ./ScreenLink.AppImage" >> "$LINUX_DIR/README.txt"
-    echo "" >> "$LINUX_DIR/README.txt"
-    echo "Opção 3 (Sem FUSE - para sistemas com restrições):" >> "$LINUX_DIR/README.txt"
-    echo "  APPIMAGE_EXTRACT_AND_RUN=1 ./ScreenLink.AppImage" >> "$LINUX_DIR/README.txt"
-    echo "" >> "$LINUX_DIR/README.txt"
-    echo "=== Solução de Problemas ===" >> "$LINUX_DIR/README.txt"
-    echo "" >> "$LINUX_DIR/README.txt"
-    echo "Se receber erro de permissão:" >> "$LINUX_DIR/README.txt"
-    echo "  chmod +x ScreenLink.AppImage run.sh" >> "$LINUX_DIR/README.txt"
-    echo "" >> "$LINUX_DIR/README.txt"
-    echo "Se FUSE não está disponível:" >> "$LINUX_DIR/README.txt"
-    echo "  export APPIMAGE_EXTRACT_AND_RUN=1" >> "$LINUX_DIR/README.txt"
-    echo "  ./ScreenLink.AppImage" >> "$LINUX_DIR/README.txt"
-    echo "" >> "$LINUX_DIR/README.txt"
-    echo "Extrair e executar diretamente:" >> "$LINUX_DIR/README.txt"
-    echo "  ./ScreenLink.AppImage --appimage-extract" >> "$LINUX_DIR/README.txt"
-    echo "  ./squashfs-root/AppRun" >> "$LINUX_DIR/README.txt"
+    echo "This starts the backend server automatically!" >> "$LINUX_DIR/README.txt"
     
     cd "$DIST_DIR"
     zip -r "ScreenLink-${VERSION}-linux-portable.zip" "ScreenLink-${VERSION}-linux-portable/"
@@ -93,14 +91,33 @@ if [ -d "$MACOS_APP" ]; then
     
     cp -r "$MACOS_APP" "$MACOS_DIR/ScreenLink.app"
     
+    # Copy backend server
+    if [ -d "$SCRIPT_DIR/backend" ]; then
+        cp -r "$SCRIPT_DIR/backend" "$MACOS_DIR/"
+        echo "✓ Backend included"
+    fi
+    
+    # Create run script that starts backend and app
     echo "#!/bin/bash" > "$MACOS_DIR/run.sh"
     echo 'DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"' >> "$MACOS_DIR/run.sh"
+    echo '' >> "$MACOS_DIR/run.sh"
+    echo '# Start backend server in background if not already running' >> "$MACOS_DIR/run.sh"
+    echo 'if [ -d "$DIR/backend" ] && ! nc -z localhost 3001 2>/dev/null; then' >> "$MACOS_DIR/run.sh"
+    echo '    cd "$DIR/backend"' >> "$MACOS_DIR/run.sh"
+    echo '    npm install --silent 2>/dev/null' >> "$MACOS_DIR/run.sh"
+    echo '    npm run start > /dev/null 2>&1 &' >> "$MACOS_DIR/run.sh"
+    echo '    sleep 1' >> "$MACOS_DIR/run.sh"
+    echo '    cd "$DIR"' >> "$MACOS_DIR/run.sh"
+    echo 'fi' >> "$MACOS_DIR/run.sh"
+    echo '' >> "$MACOS_DIR/run.sh"
     echo 'open -a "$DIR/ScreenLink.app"' >> "$MACOS_DIR/run.sh"
     chmod +x "$MACOS_DIR/run.sh"
     
     echo "ScreenLink - Portable macOS" > "$MACOS_DIR/README.txt"
     echo "" >> "$MACOS_DIR/README.txt"
     echo "Run: ./run.sh or double-click ScreenLink.app" >> "$MACOS_DIR/README.txt"
+    echo "" >> "$MACOS_DIR/README.txt"
+    echo "The backend server will start automatically!" >> "$MACOS_DIR/README.txt"
     
     cd "$DIST_DIR"
     zip -r "ScreenLink-${VERSION}-macos-portable.zip" "ScreenLink-${VERSION}-macos-portable/"

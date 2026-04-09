@@ -3,6 +3,7 @@ $VERSION = "1.0.0"
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DIST_DIR = Join-Path $SCRIPT_DIR "dist-portable"
 $WIN_PORTABLE = Join-Path $SCRIPT_DIR "frontend/target/release/ScreenLink.exe"
+$BACKEND_DIR = Join-Path $SCRIPT_DIR "backend"
 
 # Create dist dir if needed
 if (-not (Test-Path $DIST_DIR)) {
@@ -22,15 +23,36 @@ if (Test-Path $WIN_PORTABLE) {
     # Copy executable
     Copy-Item $WIN_PORTABLE (Join-Path $WINDOWS_DIR "ScreenLink.exe")
     
-    # Create run.bat - simple echo approach
+    # Copy backend if exists
+    if (Test-Path $BACKEND_DIR) {
+        Copy-Item $BACKEND_DIR (Join-Path $WINDOWS_DIR "backend") -Recurse
+    }
+    
+    # Create run.bat with backend startup
     $batPath = Join-Path $WINDOWS_DIR "run.bat"
     "@echo off" | Out-File $batPath -Encoding ASCII -Force
     "REM ScreenLink Portable" | Out-File $batPath -Encoding ASCII -Append
+    "REM Start backend server if available" | Out-File $batPath -Encoding ASCII -Append
+    "if exist `"%~dp0backend`" (" | Out-File $batPath -Encoding ASCII -Append
+    "    cd /d `"%~dp0backend`"" | Out-File $batPath -Encoding ASCII -Append
+    "    npm install --silent >nul 2>&1" | Out-File $batPath -Encoding ASCII -Append
+    "    START /B npm run start >nul 2>&1" | Out-File $batPath -Encoding ASCII -Append
+    "    timeout /t 1 /nobreak >nul" | Out-File $batPath -Encoding ASCII -Append
+    "    cd /d `"%~dp0.`"" | Out-File $batPath -Encoding ASCII -Append
+    ")" | Out-File $batPath -Encoding ASCII -Append
     "`"%~dp0ScreenLink.exe`" %*" | Out-File $batPath -Encoding ASCII -Append
     
     # Create run.ps1
     $psPath = Join-Path $WINDOWS_DIR "run.ps1"
     "`$scriptPath = Split-Path -Parent `$MyInvocation.MyCommand.Path" | Out-File $psPath -Encoding UTF8 -Force
+    "`$backendPath = Join-Path `$scriptPath 'backend'" | Out-File $psPath -Encoding UTF8 -Append
+    "if (Test-Path `$backendPath) {" | Out-File $psPath -Encoding UTF8 -Append
+    "    Push-Location `$backendPath" | Out-File $psPath -Encoding UTF8 -Append
+    "    npm install --silent 2>null" | Out-File $psPath -Encoding UTF8 -Append
+    "    Start-Job -ScriptBlock { npm run start } -WorkingDirectory `$args[0] -ArgumentList `$pwd | Out-Null" | Out-File $psPath -Encoding UTF8 -Append
+    "    Start-Sleep -Milliseconds 500" | Out-File $psPath -Encoding UTF8 -Append
+    "    Pop-Location" | Out-File $psPath -Encoding UTF8 -Append
+    "}" | Out-File $psPath -Encoding UTF8 -Append
     "& `"`$scriptPath\ScreenLink.exe`"" | Out-File $psPath -Encoding UTF8 -Append
     
     # Create README.txt
@@ -42,8 +64,10 @@ if (Test-Path $WIN_PORTABLE) {
     "" | Out-File $readmePath -Encoding ASCII -Append
     "To run:" | Out-File $readmePath -Encoding ASCII -Append
     "  1. Double-click ScreenLink.exe" | Out-File $readmePath -Encoding ASCII -Append
-    "  2. Or double-click run.bat" | Out-File $readmePath -Encoding ASCII -Append
+    "  2. Or double-click run.bat (starts backend automatically)" | Out-File $readmePath -Encoding ASCII -Append
     "  3. Or run via PowerShell: .\run.ps1" | Out-File $readmePath -Encoding ASCII -Append
+    "" | Out-File $readmePath -Encoding ASCII -Append
+    "The backend server will start automatically!" | Out-File $readmePath -Encoding ASCII -Append
     "" | Out-File $readmePath -Encoding ASCII -Append
     "No admin permissions needed!" | Out-File $readmePath -Encoding ASCII -Append
     
