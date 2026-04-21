@@ -87,7 +87,7 @@ jobs:
 
       - name: Upload artifacts to Release (Linux)
         if: matrix.os == 'ubuntu-latest'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             frontend/target/release/bundle/appimage/*.AppImage
@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload artifacts to Release (Windows)
         if: matrix.os == 'windows-latest'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             frontend/target/release/bundle/msi/*.msi
@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload artifacts to Release (macOS)
         if: matrix.os == 'macos-latest'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             frontend/target/release/bundle/dmg/*.dmg
